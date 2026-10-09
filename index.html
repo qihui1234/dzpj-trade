@@ -168,12 +168,17 @@
                     memo: "购买香料仓单 - 金额: " + amount + " Pi",
                     metadata: { item: "spice_receipt", amount: amount }
                 }, {
-                    onReadyForServerApproval: function(paymentId) {
-                        console.log("支付已创建，等待服务器批准:", paymentId);
-                        // 在沙盒环境中，可以模拟批准流程
-                        // 实际生产环境需要发送到你的后端
-                        document.getElementById('statusMsg').textContent = '支付已创建，等待批准...';
-                    },
+                               onReadyForServerApproval: function(paymentId) {
+                console.log("Payment ready for approval:", paymentId);
+                // 在沙盒环境中，从前端直接调用 approvePayment 来模拟后端批准
+                Pi.approvePayment(paymentId).then(() => {
+                    console.log("支付已批准（沙盒模拟）");
+                    document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
+                }).catch(err => {
+                    console.error("批准失败:", err);
+                    document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
+                });
+            },
                     onReadyForServerCompletion: function(paymentId, txid) {
                         console.log("支付完成:", paymentId, txid);
                         document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
