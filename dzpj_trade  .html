@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DZPJ RWA Trade</title>
+
+    <!-- ================================================
+         引入 Pi Network SDK（必须放在 head 或 body 最前面）
+         ================================================ -->
+    <script src="https://sdk.minepi.com/pi-sdk.js"></script>
+
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            margin: 0;
+            background: #f7f4ee;
+            color: #2b2b2b;
+        }
+        /* 顶部导航栏：品牌 + Pi 登录按钮 / 用户名 */
+        .topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+            background: #fff;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .brand { font-weight: 700; font-size: 18px; }
+        .brand span { color: #d9001a; } /* Pi 品牌红 */
+        .login-btn {
+            padding: 9px 18px;
+            background: #d9001a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .user-info { font-size: 14px; color: #333; font-weight: 600; }
+
+        .header { padding: 24px 24px 12px; }
+        .header h1 { margin: 0 0 4px; font-size: 24px; }
+        .header p { margin: 0; color: #666; }
+
+        /* 商品卡片网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+            gap: 16px;
+            padding: 12px 24px 40px;
+        }
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08);
+        }
+        .card .icon { font-size: 34px; }
+        .card h3 { margin: 8px 0 4px; font-size: 18px; }
+        .card .spec { color: #888; font-size: 13px; margin: 2px 0; }
+        .card .price { font-size: 22px; font-weight: 700; color: #d9001a; margin: 12px 0 14px; }
+        .pay-btn {
+            width: 100%;
+            padding: 11px;
+            background: #d9001a;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: opacity .15s;
+        }
+        .pay-btn:hover, .login-btn:hover { opacity: .9; }
+        .pay-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+        /* 全局提示浮层 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            z-index: 999;
+            box-shadow: 0 2px 10px rgba(0,0,0,.25);
+            opacity: 0;
+            transition: opacity .25s;
+        }
+        .toast.ok { background: #2e7d32; }
+        .toast.err { background: #c62828; }
+        .toast.info { background: #1565c0; }
+    </style>
+</head>
+<body>
+
+    <!-- 顶部导航栏：品牌 + Pi 登录 -->
+    <div class="topbar">
+        <div class="brand">DZPJ <span>RWA</span> Trade</div>
+        <div id="loginArea">
+            <!-- Connect Pi Wallet 按钮：登录后会被替换为用户名 -->
+            <button id="connectBtn" class="login-btn">Connect Pi Wallet</button>
+        </div>
+    </div>
+
+    <div class="header">
+        <h1>🌶 香料仓单 · 可交易资产</h1>
+        <p>Pi Network · RWA 实物资产代币化交易</p>
+    </div>
+
+    <!-- 商品列表：每张卡片 data-name 存商品名，data-price 存 Pi 单价 -->
+    <div class="grid">
+
+        <!-- 八角 -->
+        <div class="card" data-name="八角" data-price="150">
+            <div class="icon">⭐</div>
+            <h3>八角</h3>
+            <div class="spec">规格：一级大红八角（干）</div>
+            <div class="spec">SGS：SGS-2024-008721</div>
+            <div class="spec">库存：50 吨</div>
+            <div class="price">150 Pi/吨</div>
+            <button class="pay-btn" onclick="handlePay(this)">使用 Pi 支付</button>
+        </div>
+
+        <!-- 桂皮 -->
+        <div class="card" data-name="桂皮" data-price="120">
+            <div class="icon">🌿</div>
+            <h3>桂皮</h3>
+            <div class="spec">规格：A级肉桂卷（去皮）</div>
+            <div class="spec">SGS：SGS-2024-008722</div>
+            <div class="spec">库存：80 吨</div>
+            <div class="price">120 Pi/吨</div>
+            <button class="pay-btn" onclick="handlePay(this)">使用 Pi 支付</button>
+        </div>
+
+        <!-- 丁香 -->
+        <div class="card" data-name="丁香" data-price="210">
+            <div class="icon">🌸</div>
+            <h3>丁香</h3>
+            <div class="spec">规格：优质丁香（完整花蕾）</div>
+            <div class="spec">SGS：SGS-2024-008723</div>
+            <div class="spec">库存：35 吨</div>
+            <div class="price">210 Pi/吨</div>
+            <button class="pay-btn" onclick="handlePay(this)">使用 Pi 支付</button>
+        </div>
+
+        <!-- 豆蔻 -->
+        <div class="card" data-name="豆蔻" data-price="175">
+            <div class="icon">🫘</div>
+            <h3>豆蔻</h3>
+            <div class="spec">规格：一级砂仁豆蔻</div>
+            <div class="spec">SGS：SGS-2024-008724</div>
+            <div class="spec">库存：45 吨</div>
+            <div class="price">175 Pi/吨</div>
+            <button class="pay-btn" onclick="handlePay(this)">使用 Pi 支付</button>
+        </div>
+
+        <!-- 草果 -->
+        <div class="card" data-name="草果" data-price="165">
+            <div class="icon">🌰</div>
+            <h3>草果</h3>
+            <div class="spec">规格：精选烟熏草果</div>
+            <div class="spec">SGS：SGS-2024-008725</div>
+            <div class="spec">库存：60 吨</div>
+            <div class="price">165 Pi/吨</div>
+            <button class="pay-btn" onclick="handlePay(this)">使用 Pi 支付</button>
+        </div>
+
+    </div>
+
+    <!-- 全局提示浮层 -->
+    <div id="toast" class="toast"></div>
+
+    <!-- =====================================================
+         Pi Network SDK 集成脚本（已加详细注释，便于你调整）
+         ===================================================== -->
+    <script>
+        // 当前登录的用户信息
+        let currentUser = null;
+
+        /* ---------- 1. 初始化 Pi SDK ----------
+         * version: SDK 版本（2.0）
+         * sandbox: true = 沙箱模式（测试支付，不会真实扣款）
+         *            正式上线请改为 false
+         * -------------------------------------- */
+        try {
+            Pi.init({ version: "2.0", sandbox: true });
+            console.log("[Pi] SDK 初始化成功（sandbox 模式）");
+        } catch (e) {
+            console.error("[Pi] 初始化失败:", e);
+        }
+
+        /* ---------- 2. Pi 登录 ----------
+         * 点击「Connect Pi Wallet」→ Pi.authenticate()
+         * 成功后在顶部显示 Pi 用户名
+         * scopes: 请求 username（登录）+ payments（支付）权限
+         * --------------------------------- */
+        const connectBtn = document.getElementById("connectBtn");
+        connectBtn.addEventListener("click", async function () {
+            try {
+                // 第三个参数是处理未完成支付的回调，必须有（当 scopes 含 payments 时）
+                const authResult = await Pi.authenticate(
+                    ["username", "payments"],
+                    onIncompletePaymentFound
+                );
+
+                currentUser = authResult.user;
+                console.log("[Pi] 登录成功:", authResult.user);
+
+                // 把登录按钮替换为用户名
+                document.getElementById("loginArea").innerHTML =
+                    '<span class="user-info">👤 ' + authResult.user.username + '</span>';
+
+                showToast("登录成功，欢迎 " + authResult.user.username, "ok");
+            } catch (err) {
+                console.error("[Pi] 登录失败:", err);
+                showToast("Pi 登录失败或已取消", "err");
+            }
+        });
+
+        /* ---------- 3. Pi 支付 ----------
+         * 每个商品卡片的「使用 Pi 支付」按钮绑定此函数
+         * 金额 = 动态读取卡片 data-price（该商品的 Pi 单价）
+         * --------------------------------- */
+        async function handlePay(btn) {
+            try {
+                // 从被点击的按钮找到所属卡片，读取商品数据
+                const card = btn.closest(".card");
+                const productName = card.getAttribute("data-name");
+                const unitPrice = parseFloat(card.getAttribute("data-price")); // 如 150
+
+                // 默认购买 1 吨（如需支持数量，可在此扩展）
+                const amount = unitPrice * 1;
+                console.log(`[Pi] 发起支付: ${productName}, 金额 ${amount} Pi`);
+
+                // 支付前必须已登录
+                if (!currentUser) {
+                    showToast("请先点击「Connect Pi Wallet」完成登录", "info");
+                    return;
+                }
+
+                // 构造支付请求
+                const paymentData = {
+                    amount: amount,                                  // 支付金额（Pi）
+                    memo: "购买 " + productName + " 仓单",          // 支付备注
+                    metadata: { product: productName, unit: "ton", quantity: 1 },
+                    toAddress: "YOUR_PI_WALLET_ADDRESS"              // ★ 替换为你的收款钱包地址
+                };
+
+                // 调用 Pi.createPayment() 发起支付
+                const payment = await Pi.createPayment(paymentData, {
+                    // 用户确认支付后触发：可在此锁定库存 / 通知服务器
+                    onReadyForServerApproval: function (paymentId) {
+                        console.log("[Pi] 待服务器确认, paymentId:", paymentId);
+                    },
+                    // 服务器确认支付完成后触发：可放行商品
+                    onReadyForServerCompletion: function (paymentId, txid) {
+                        console.log("[Pi] 服务器确认完成, paymentId:", paymentId, "txid:", txid);
+                    },
+                    // 用户取消支付
+                    onCancel: function (paymentId) {
+                        console.log("[Pi] 用户取消支付:", paymentId);
+                        showToast("支付已取消", "info");
+                    },
+                    // 支付出错
+                    onError: function (error, payment) {
+                        console.error("[Pi] 支付出错:", error, payment);
+                        showToast("支付出错，请重试", "err");
+                    }
+                });
+
+                // 支付成功
+                console.log("[Pi] 支付成功:", payment);
+                showToast("支付成功！已购买 " + productName + "（" + amount + " Pi）", "ok");
+
+            } catch (err) {
+                console.error("[Pi] 支付流程异常:", err);
+                showToast("支付未完成，请稍后重试", "err");
+            }
+        }
+
+        /* ---------- 4. 未完成支付回调 ----------
+         * 用户在 authenticate() 时若存在上次未完成的支付，会回调到这里
+         * 可在此处理续付 / 提示逻辑
+         * ------------------------------------- */
+        function onIncompletePaymentFound(payment) {
+            console.log("[Pi] 发现未完成的支付:", payment);
+            showToast("检测到一笔未完成的支付", "info");
+        }
+
+        /* ---------- 5. 轻量 Toast 提示 ---------- */
+        function showToast(msg, type) {
+            const t = document.getElementById("toast");
+            t.textContent = msg;
+            t.className = "toast " + (type || "info");
+            t.style.opacity = "1";
+            clearTimeout(t._timer);
+            t._timer = setTimeout(() => (t.style.opacity = "0"), 3000);
+        }
+    </script>
+</body>
+</html>
