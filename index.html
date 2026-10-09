@@ -4,28 +4,30 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DZPJ Trade</title>
-    <!-- 1. 引入 Pi SDK -->
+    <!-- Pi SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        body { background-color: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; padding: 0; }
-        header { background: #fff; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; position: sticky; top: 0; z-index: 10; }
-        .logo { font-size: 18px; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body { background-color: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
+        header { background: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
-        #connectBtn { background-color: #d32f2f; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; cursor: pointer; font-weight: 500; }
-        #connectBtn.connected { background-color: #4caf50; }
-        #userStatus { font-size: 14px; color: #555; display: none; }
-        .container { padding: 15px; }
-        h2 { margin: 10px 0 5px 0; font-size: 22px; }
+        #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        #connectBtn:active { background-color: #b71c1c; }
+        #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
+        .container { padding: 16px; max-width: 480px; margin: 0 auto; }
+        .section-title { font-size: 22px; font-weight: 700; margin: 8px 0 4px 0; }
         .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
-        .card { background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 15px; box-shadow: 0 1px 4px rgba(0,0,0,0.05); border: 1px solid #f0f0f0; }
-        .card-header { display: flex; align-items: center; margin-bottom: 10px; }
-        .card-icon { font-size: 28px; margin-right: 10px; }
-        .card-title { font-size: 18px; font-weight: bold; }
-        .card-details { font-size: 14px; color: #666; line-height: 1.8; }
-        .card-price { color: #d32f2f; font-size: 20px; font-weight: bold; margin: 10px 0; }
-        .pay-btn { background-color: #d32f2f; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-size: 16px; font-weight: 500; cursor: pointer; }
-        .pay-btn:disabled { background-color: #ccc; }
-        #statusMsg { text-align: center; padding: 10px; font-size: 14px; color: #666; }
+        .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
+        .card-header { display: flex; align-items: center; margin-bottom: 8px; }
+        .card-icon { font-size: 26px; margin-right: 10px; }
+        .card-title { font-size: 18px; font-weight: 700; }
+        .card-details { font-size: 14px; color: #666; line-height: 1.8; margin-bottom: 6px; }
+        .card-price { color: #d32f2f; font-size: 20px; font-weight: 700; margin: 10px 0 12px 0; }
+        .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .pay-btn:active:not(:disabled) { background-color: #b71c1c; }
+        #statusMsg { text-align: center; padding: 12px; font-size: 14px; color: #666; }
     </style>
 </head>
 <body>
@@ -36,7 +38,7 @@
     </header>
 
     <div class="container">
-        <h2>香料仓单 · 可交易资产</h2>
+        <div class="section-title">香料仓单 · 可交易资产</div>
         <div class="subtitle">Pi Network · RWA 实物资产代币化交易</div>
 
         <!-- 八角 -->
@@ -119,29 +121,27 @@
 
     <script>
         // ============================================
-        // Pi Network SDK 集成
+        // Pi Network SDK 集成（沙盒测试专用）
         // ============================================
 
-        // 2. 初始化 Pi SDK (必须在调用其他方法前执行)
+        // 1. 初始化 SDK
         Pi.init({ version: "2.0", sandbox: true });
-        console.log("Pi SDK 已初始化");
+        console.log("Pi SDK 已初始化（沙盒模式）");
 
         let isAuthenticated = false;
 
-        // 3. 连接 Pi 钱包
+        // 2. 连接钱包
         async function connectPi() {
             try {
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 console.log("授权成功:", auth);
                 isAuthenticated = true;
 
-                // 更新 UI
                 document.getElementById('connectBtn').style.display = 'none';
                 const userStatus = document.getElementById('userStatus');
                 userStatus.textContent = '✅ ' + auth.user.username;
                 userStatus.style.display = 'block';
 
-                // 启用所有支付按钮
                 document.querySelectorAll('.pay-btn').forEach(btn => btn.disabled = false);
                 document.getElementById('statusMsg').textContent = '钱包已连接，可以支付';
             } catch (err) {
@@ -150,12 +150,12 @@
             }
         }
 
-        // 处理未完成的支付 (官方要求)
+        // 处理未完成的支付（官方要求）
         function onIncompletePaymentFound(payment) {
             console.log("发现未完成的支付:", payment);
         }
 
-        // 4. 发起 Pi 支付
+        // 3. 发起支付（沙盒环境：前端直接批准）
         async function payPi(amount) {
             if (!isAuthenticated) {
                 alert("请先连接 Pi 钱包");
@@ -168,17 +168,17 @@
                     memo: "购买香料仓单 - 金额: " + amount + " Pi",
                     metadata: { item: "spice_receipt", amount: amount }
                 }, {
-                               onReadyForServerApproval: function(paymentId) {
-                console.log("Payment ready for approval:", paymentId);
-                // 在沙盒环境中，从前端直接调用 approvePayment 来模拟后端批准
-                Pi.approvePayment(paymentId).then(() => {
-                    console.log("支付已批准（沙盒模拟）");
-                    document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
-                }).catch(err => {
-                    console.error("批准失败:", err);
-                    document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
-                });
-            },
+                    onReadyForServerApproval: function(paymentId) {
+                        console.log("Payment ready for approval:", paymentId);
+                        // 沙盒环境：直接调用 SDK 批准支付，模拟后端
+                        Pi.approvePayment(paymentId).then(() => {
+                            console.log("支付已批准（沙盒模拟）");
+                            document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
+                        }).catch(err => {
+                            console.error("批准失败:", err);
+                            document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
+                        });
+                    },
                     onReadyForServerCompletion: function(paymentId, txid) {
                         console.log("支付完成:", paymentId, txid);
                         document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
@@ -200,13 +200,13 @@
             }
         }
 
-        // 页面加载完成后，检测是否在 Pi Browser 中
+        // 页面加载后检测 Pi SDK
         window.addEventListener('load', function() {
             if (typeof Pi === 'undefined') {
                 document.getElementById('statusMsg').textContent = '⚠️ 未检测到 Pi SDK，请确保在 Pi Browser 或沙盒中打开';
                 console.error("Pi SDK 未加载");
             } else {
-                console.log("Pi SDK 已加载，版本:", Pi.version || "未知");
+                console.log("Pi SDK 已加载");
             }
         });
     </script>
