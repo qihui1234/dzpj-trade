@@ -155,7 +155,7 @@
             console.log("发现未完成的支付:", payment);
         }
 
-        // 3. 发起支付（沙盒环境：前端直接批准）
+        // 3. 发起支付（调用后端批准）
         async function payPi(amount) {
             if (!isAuthenticated) {
                 alert("请先连接 Pi 钱包");
@@ -168,16 +168,25 @@
                     memo: "购买香料仓单 - 金额: " + amount + " Pi",
                     metadata: { item: "spice_receipt", amount: amount }
                 }, {
-                    onReadyForServerApproval: function(paymentId) {
+                    onReadyForServerApproval: async (paymentId) => {
                         console.log("Payment ready for approval:", paymentId);
-                        // 沙盒环境：直接调用 SDK 批准支付，模拟后端
-                        Pi.approvePayment(paymentId).then(() => {
-                            console.log("支付已批准（沙盒模拟）");
+                        try {
+                            // 调用你部署在 Vercel 的后端 /api/approve
+                            const res = await fetch('/api/approve', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ paymentId })
+                            });
+                            if (!res.ok) {
+                                const errData = await res.json();
+                                throw new Error(errData.error || 'Approval failed');
+                            }
+                            console.log("支付已批准");
                             document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
-                        }).catch(err => {
+                        } catch (err) {
                             console.error("批准失败:", err);
                             document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
-                        });
+                        }
                     },
                     onReadyForServerCompletion: function(paymentId, txid) {
                         console.log("支付完成:", paymentId, txid);
