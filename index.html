@@ -150,9 +150,32 @@
             }
         }
 
-        // 处理未完成的支付（官方要求）
-        function onIncompletePaymentFound(payment) {
-            console.log("发现未完成的支付:", payment);
+              // 处理未完成的支付（自动在后端完成，清除卡单）
+        async function onIncompletePaymentFound(payment) {
+            console.log("发现未完成的支付，正在自动处理:", payment);
+            try {
+                const paymentId = payment.identifier;
+                // 从支付元数据中获取 txid（如果是已经上链的交易）
+                const txid = payment.transaction && payment.transaction.txid ? payment.transaction.txid : null;
+
+                if (txid) {
+                    // 有交易ID，通知后端去完成这笔支付
+                    const res = await fetch('/api/complete', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ paymentId, txid })
+                    });
+                    if (res.ok) {
+                        console.log("卡单已成功标记为完成:", paymentId);
+                    } else {
+                        console.error("标记完成失败");
+                    }
+                } else {
+                    console.log("未找到链上交易ID，这笔支付可能只是超时，无需处理");
+                }
+            } catch (err) {
+                console.error("自动处理卡单失败:", err);
+            }
         }
 
         // 3. 发起支付（调用后端批准）
