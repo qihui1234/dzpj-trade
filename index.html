@@ -188,10 +188,25 @@
                             document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
                         }
                     },
-                    onReadyForServerCompletion: function(paymentId, txid) {
-                        console.log("支付完成:", paymentId, txid);
-                        document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
-                        alert("支付成功！");
+                                      onReadyForServerCompletion: async function(paymentId, txid) {
+                        console.log("支付完成，准备通知后端确认:", paymentId, txid);
+                        try {
+                            const res = await fetch('/api/complete', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ paymentId, txid })
+                            });
+                            if (!res.ok) {
+                                const errData = await res.json();
+                                throw new Error(errData.error || 'Completion failed');
+                            }
+                            console.log("后端已确认完成");
+                            document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
+                            alert("支付成功！");
+                        } catch (err) {
+                            console.error("完成确认失败:", err);
+                            document.getElementById('statusMsg').textContent = '完成确认失败: ' + err.message;
+                        }
                     },
                     onCancel: function(paymentId) {
                         console.log("支付已取消:", paymentId);
