@@ -14,7 +14,6 @@
         .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
         #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
-        #connectBtn:disabled { background-color: #ccc; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
 
         /* 页面容器 */
@@ -22,24 +21,20 @@
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 搜索框 */
+        /* 搜索框 & 分类 */
         .search-bar { background: #fff; border-radius: 20px; padding: 10px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; }
         .search-bar input { border: none; outline: none; flex: 1; font-size: 14px; }
-
-        /* 分类栏 */
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; white-space: nowrap; border: 1px solid #eee; cursor: pointer; }
         .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
 
         /* 商品卡片 */
         .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
-        .card-left { flex: 1; }
         .card-header { display: flex; align-items: center; margin-bottom: 6px; }
         .card-icon { font-size: 20px; margin-right: 8px; }
         .card-title { font-size: 16px; font-weight: 700; }
         .card-price { color: #d32f2f; font-size: 16px; font-weight: 700; margin-top: 8px; }
         .card-right { font-size: 24px; color: #ccc; font-weight: bold; padding-left: 10px; }
-        
         .badge-group { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;}
         .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
         .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
@@ -52,16 +47,32 @@
         .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
         .detail-box h3 { font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
         .detail-row { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 8px; }
-        
-        /* 支付按钮 */
         .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
         .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+
+        /* 我的页面专用样式 */
+        .profile-header { background: linear-gradient(135deg, #d32f2f, #ff5252); border-radius: 12px; padding: 24px; text-align: center; color: white; margin-bottom: 20px; }
+        .profile-avatar { font-size: 50px; margin-bottom: 10px; }
+        .menu-list { background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid #eee; }
+        .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #f5f5f5; font-size: 15px; cursor: pointer; }
+        .menu-item:last-child { border-bottom: none; }
+        .menu-item-left { display: flex; align-items: center; gap: 10px; }
+        .menu-icon { font-size: 20px; }
+        .menu-value { color: #999; font-size: 14px; }
 
         /* 底部导航 */
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; text-align: center; padding: 12px 0; font-size: 12px; color: #999; cursor: pointer; }
         .nav-item.active { color: #d32f2f; font-weight: 600; }
         .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        /* 多语言切换弹窗 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-end; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: #fff; width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 20px; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .lang-option { padding: 14px; text-align: center; border-bottom: 1px solid #eee; cursor: pointer; font-size: 16px; }
+        .lang-option:hover { background: #f5f5f5; }
     </style>
 </head>
 <body>
@@ -69,116 +80,236 @@
     <header>
         <div class="logo">DZPJ <span>RWA</span></div>
         <div id="userStatus"></div>
-        <button id="connectBtn" onclick="connectPi()">Connect Wallet</button>
+        <button id="connectBtn" onclick="connectPi()" data-i18n="connect">Connect Wallet</button>
     </header>
 
+    <!-- 首页 -->
     <div id="page-home" class="page active">
         <div class="search-bar">
             <span style="margin-right: 8px; color: #999;">🔍</span>
-            <input type="text" placeholder="搜索仓单 / SGS编号 / 认证...">
+            <input type="text" id="search-input" placeholder="搜索仓单 / SGS编号 / 认证..." data-i18n-placeholder="search_placeholder">
         </div>
 
         <div class="filter-tabs">
-            <div class="filter-tab active" onclick="filterCategory('all', this)">全部</div>
-            <div class="filter-tab" onclick="filterCategory('spice', this)">香料</div>
-            <div class="filter-tab" onclick="filterCategory('halal', this)">清真食品</div>
-            <div class="filter-tab" onclick="filterCategory('sgs', this)">SGS认证</div>
+            <div class="filter-tab active" onclick="filterCategory('all', this)" data-i18n="all">全部</div>
+            <div class="filter-tab" onclick="filterCategory('spice', this)" data-i18n="spices">香料</div>
+            <div class="filter-tab" onclick="filterCategory('halal', this)" data-i18n="halal">清真食品</div>
+            <div class="filter-tab" onclick="filterCategory('sgs', this)" data-i18n="sgs">SGS认证</div>
         </div>
 
         <div id="product-list"></div>
     </div>
 
+    <!-- 详情页 -->
     <div id="page-detail" class="page">
-        <div class="back-btn" onclick="switchPage('home')">← 返回</div>
+        <div class="back-btn" onclick="switchPage('home')" data-i18n="back">← 返回</div>
         <div id="detail-content"></div>
     </div>
 
+    <!-- 我的页面 -->
     <div id="page-profile" class="page">
-        <div class="detail-box" style="text-align: center; padding: 30px 16px;">
-            <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
-            <h2 id="profile-username" style="font-size: 18px; margin-bottom: 5px;">未连接钱包</h2>
-            <p style="font-size: 13px; color: #888;">请点击右上角连接钱包</p>
+        <div class="profile-header">
+            <div class="profile-avatar">👤</div>
+            <h2 id="profile-username" style="font-size: 20px; margin-bottom: 5px;" data-i18n="not_connected">未连接钱包</h2>
+            <p style="font-size: 13px; opacity: 0.8;" data-i18n="connect_hint">请点击右上角连接钱包</p>
         </div>
-        <div class="detail-box">
-            <h3>我的订单</h3>
-            <p style="font-size: 13px; color: #999; text-align: center; padding: 20px 0;">暂无订单记录</p>
+
+        <div class="menu-list">
+            <div class="menu-item" onclick="alert('Pi Network KYC 已通过')">
+                <div class="menu-item-left">
+                    <span class="menu-icon">🪪</span>
+                    <span data-i18n="identity">身份证明</span>
+                </div>
+                <div class="menu-value" style="color: #2e7d32;" data-i18n="verified">已认证</div>
+            </div>
+            
+            <div class="menu-item" onclick="alert('暂无交易记录')">
+                <div class="menu-item-left">
+                    <span class="menu-icon">📜</span>
+                    <span data-i18n="history">消费记录</span>
+                </div>
+                <div class="menu-value">›</div>
+            </div>
+            
+            <div class="menu-item" onclick="prompt('请输入您的收货地址：', '中国山东省德州市')">
+                <div class="menu-item-left">
+                    <span class="menu-icon">📍</span>
+                    <span data-i18n="address">收货地址</span>
+                </div>
+                <div class="menu-value" id="address-display">未设置</div>
+            </div>
+            
+            <div class="menu-item" onclick="openLanguageModal()">
+                <div class="menu-item-left">
+                    <span class="menu-icon">🌐</span>
+                    <span data-i18n="language">语言设置</span>
+                </div>
+                <div class="menu-value" id="current-lang-display">English</div>
+            </div>
         </div>
     </div>
 
+    <!-- 底部导航 -->
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
-            <span class="nav-icon">🏠</span>首页
+            <span class="nav-icon">🏠</span><span data-i18n="home">首页</span>
         </div>
         <div class="nav-item" id="nav-profile" onclick="switchPage('profile')">
-            <span class="nav-icon">👤</span>我的
+            <span class="nav-icon">👤</span><span data-i18n="profile">我的</span>
         </div>
     </nav>
 
+    <!-- 语言选择弹窗 -->
+    <div id="language-modal" class="modal-overlay" onclick="closeLanguageModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="text-align: center; margin-bottom: 15px;" data-i18n="select_lang">选择语言 / Select Language</h3>
+            <div class="lang-option" onclick="changeLanguage('en')">English (英语)</div>
+            <div class="lang-option" onclick="changeLanguage('zh')">简体中文</div>
+            <div class="lang-option" onclick="changeLanguage('tw')">繁體中文</div>
+            <div class="lang-option" onclick="changeLanguage('ar')">العربية (阿拉伯语)</div>
+            <button style="width:100%; padding:14px; margin-top:10px; background:#f0f0f0; border:none; border-radius:8px; font-size:16px;" onclick="closeLanguageModal()" data-i18n="cancel">取消</button>
+        </div>
+    </div>
+
     <script>
         // ============================================
-        // 1. 庞大商品库 (价格区间 0.1 - 3.0 Pi)
+        // 1. 多语言字典 (i18n)
+        // ============================================
+        const translations = {
+            en: {
+                connect: "Connect Wallet", search_placeholder: "Search receipts / SGS / Certs...",
+                all: "All", spices: "Spices", halal: "Halal Food", sgs: "SGS Certified",
+                back: "← Back", not_connected: "Not Connected", connect_hint: "Click top right to connect",
+                identity: "Identity", verified: "Verified", history: "History", address: "Address", language: "Language",
+                home: "Home", profile: "Profile", select_lang: "Select Language", cancel: "Cancel",
+                pay: "Pay", buy: "Buy", current_lang: "English"
+            },
+            zh: {
+                connect: "连接钱包", search_placeholder: "搜索仓单 / SGS编号 / 认证...",
+                all: "全部", spices: "香料", halal: "清真食品", sgs: "SGS认证",
+                back: "← 返回", not_connected: "未连接钱包", connect_hint: "请点击右上角连接钱包",
+                identity: "身份证明", verified: "已认证", history: "消费记录", address: "收货地址", language: "语言设置",
+                home: "首页", profile: "我的", select_lang: "选择语言", cancel: "取消",
+                pay: "支付", buy: "购买", current_lang: "简体中文"
+            },
+            tw: {
+                connect: "連接錢包", search_placeholder: "搜尋倉單 / SGS編號 / 認證...",
+                all: "全部", spices: "香料", halal: "清真食品", sgs: "SGS認證",
+                back: "← 返回", not_connected: "未連接錢包", connect_hint: "請點擊右上角連接錢包",
+                identity: "身份證明", verified: "已認證", history: "消費記錄", address: "收貨地址", language: "語言設置",
+                home: "首頁", profile: "我的", select_lang: "選擇語言", cancel: "取消",
+                pay: "支付", buy: "購買", current_lang: "繁體中文"
+            },
+            ar: {
+                connect: "ربط المحفظة", search_placeholder: "البحث عن الإيصالات / SGS / الشهادات...",
+                all: "الكل", spices: "التوابل", halal: "طعام حلال", sgs: "معتمد من SGS",
+                back: "← رجوع", not_connected: "غير متصل", connect_hint: "انقر أعلى اليمين للاتصال",
+                identity: "الهوية", verified: "موثق", history: "السجل", address: "العنوان", language: "اللغة",
+                home: "الرئيسية", profile: "حسابي", select_lang: "اختر اللغة", cancel: "إلغاء",
+                pay: "دفع", buy: "شراء", current_lang: "العربية"
+            }
+        };
+
+        let currentLang = 'en'; // 默认英文
+
+        function changeLanguage(lang) {
+            currentLang = lang;
+            const dict = translations[lang];
+            
+            // 替换所有带有 data-i18n 的元素文本
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(dict[key]) el.innerText = dict[key];
+            });
+            
+            // 替换 placeholder
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(dict[key]) el.setAttribute('placeholder', dict[key]);
+            });
+
+            // 更新语言显示
+            document.getElementById('current-lang-display').innerText = dict.current_lang;
+
+            // 重新渲染商品列表（因为商品名称也可能需要翻译，这里简化处理，仅改变按钮文本）
+            renderProducts();
+
+            closeLanguageModal();
+            
+            // 如果已连接，更新支付按钮文字
+            const payBtn = document.getElementById('detail-pay-btn');
+            if(payBtn && isAuthenticated) {
+                const amount = payBtn.getAttribute('data-amount');
+                if(amount) payBtn.innerText = `${dict.pay} ${amount} Pi ${dict.buy}`;
+            }
+        }
+
+        function openLanguageModal() { document.getElementById('language-modal').classList.add('active'); }
+        function closeLanguageModal(e) {
+            if(e && e.target !== e.currentTarget) return;
+            document.getElementById('language-modal').classList.remove('active');
+        }
+
+        // ============================================
+        // 2. 商品数据 (保留 45 种商品)
         // ============================================
         const products = [
-            // --- 乐陵香料系列 (20种) ---
-            { id: 1, name: '大红八角', category: 'spice', icon: '⭐', price: 1.5, sgs: 'SGS-2024-008721', stock: 150, desc: '规格：一级大红八角（干），乐陵集散' },
-            { id: 2, name: '肉桂卷', category: 'spice', icon: '🌿', price: 0.8, sgs: 'SGS-2024-008722', stock: 200, desc: '规格：A级肉桂卷（去皮），香味浓郁' },
-            { id: 3, name: '汉源花椒', category: 'spice', icon: '🔴', price: 2.1, sgs: 'SGS-2024-008723', stock: 120, desc: '规格：大红袍花椒，麻香纯正' },
-            { id: 4, name: '小茴香', category: 'spice', icon: '🌾', price: 0.6, sgs: 'SGS-2024-008724', stock: 300, desc: '规格：内蒙小茴香，颗粒饱满' },
-            { id: 5, name: '特级丁香', category: 'spice', icon: '🌺', price: 2.8, sgs: 'SGS-2024-008725', stock: 80, desc: '规格：优质丁香（完整花蕾），高精油' },
-            { id: 6, name: '肉豆蔻', category: 'spice', icon: '🟤', price: 1.9, sgs: 'SGS-2024-008726', stock: 110, desc: '规格：印尼进口肉豆蔻，颗粒饱满' },
+            // 香料 20种
+            { id: 1, name: '大红八角', category: 'spice', icon: '⭐', price: 1.5, sgs: 'SGS-2024-008721', stock: 150, desc: '规格：一级大红八角（干）' },
+            { id: 2, name: '肉桂卷', category: 'spice', icon: '🌿', price: 0.8, sgs: 'SGS-2024-008722', stock: 200, desc: '规格：A级肉桂卷（去皮）' },
+            { id: 3, name: '汉源花椒', category: 'spice', icon: '🔴', price: 2.1, sgs: 'SGS-2024-008723', stock: 120, desc: '规格：大红袍花椒' },
+            { id: 4, name: '小茴香', category: 'spice', icon: '🌾', price: 0.6, sgs: 'SGS-2024-008724', stock: 300, desc: '规格：内蒙小茴香' },
+            { id: 5, name: '特级丁香', category: 'spice', icon: '🌺', price: 2.8, sgs: 'SGS-2024-008725', stock: 80, desc: '规格：优质丁香' },
+            { id: 6, name: '肉豆蔻', category: 'spice', icon: '🟤', price: 1.9, sgs: 'SGS-2024-008726', stock: 110, desc: '规格：印尼进口肉豆蔻' },
             { id: 7, name: '草果', category: 'spice', icon: '🍂', price: 1.2, sgs: 'SGS-2024-008727', stock: 140, desc: '规格：云南精选烟熏草果' },
-            { id: 8, name: '干姜块', category: 'spice', icon: '🫚', price: 0.5, sgs: 'SGS-2024-008728', stock: 220, desc: '规格：山东干姜，辛辣味足' },
-            { id: 9, name: '白胡椒', category: 'spice', icon: '⚪', price: 2.3, sgs: 'SGS-2024-008729', stock: 180, desc: '规格：海南白胡椒，水洗去壳' },
-            { id: 10, name: '黑胡椒', category: 'spice', icon: '⚫', price: 2.0, sgs: 'SGS-2024-008730', stock: 160, desc: '规格：越南原产黑胡椒，特级水洗' },
-            { id: 11, name: '孜然', category: 'spice', icon: '🌱', price: 0.9, sgs: 'SGS-2024-008731', stock: 250, desc: '规格：新疆大颗粒孜然，去杂干净' },
-            { id: 12, name: '甘草片', category: 'spice', icon: '🪵', price: 0.7, sgs: 'SGS-2024-008732', stock: 190, desc: '规格：新疆甘草切片，甜味纯正' },
+            { id: 8, name: '干姜块', category: 'spice', icon: '🫚', price: 0.5, sgs: 'SGS-2024-008728', stock: 220, desc: '规格：山东干姜' },
+            { id: 9, name: '白胡椒', category: 'spice', icon: '⚪', price: 2.3, sgs: 'SGS-2024-008729', stock: 180, desc: '规格：海南白胡椒' },
+            { id: 10, name: '黑胡椒', category: 'spice', icon: '⚫', price: 2.0, sgs: 'SGS-2024-008730', stock: 160, desc: '规格：越南原产黑胡椒' },
+            { id: 11, name: '孜然', category: 'spice', icon: '🌱', price: 0.9, sgs: 'SGS-2024-008731', stock: 250, desc: '规格：新疆大颗粒孜然' },
+            { id: 12, name: '甘草片', category: 'spice', icon: '🪵', price: 0.7, sgs: 'SGS-2024-008732', stock: 190, desc: '规格：新疆甘草切片' },
             { id: 13, name: '陈皮丝', category: 'spice', icon: '🍊', price: 1.1, sgs: 'SGS-2024-008733', stock: 130, desc: '规格：三年陈新会陈皮丝' },
-            { id: 14, name: '砂仁', category: 'spice', icon: '🫒', price: 2.5, sgs: 'SGS-2024-008734', stock: 90, desc: '规格：阳春砂仁，去壳留仁' },
-            { id: 15, name: '香叶', category: 'spice', icon: '🍃', price: 0.3, sgs: 'SGS-2024-008735', stock: 400, desc: '规格：土耳其进口香叶，无破损' },
-            { id: 16, name: '白芷', category: 'spice', icon: '🥔', price: 0.6, sgs: 'SGS-2024-008736', stock: 210, desc: '规格：川白芷，切片均匀' },
-            { id: 17, name: '山奈', category: 'spice', icon: '🥔', price: 1.4, sgs: 'SGS-2024-008737', stock: 170, desc: '规格：广东山奈，沙姜风味' },
-            { id: 18, name: '良姜', category: 'spice', icon: '🫚', price: 0.8, sgs: 'SGS-2024-008738', stock: 140, desc: '规格：高良姜切片，去腥提鲜' },
-            { id: 19, name: '荜拨', category: 'spice', icon: '🌿', price: 1.7, sgs: 'SGS-2024-008739', stock: 100, desc: '规格：印尼荜拨，长条饱满' },
-            { id: 20, name: '迷迭香', category: 'spice', icon: '🌿', price: 2.7, sgs: 'SGS-2024-008740', stock: 75, desc: '规格：地中海进口迷迭香叶' },
-
-            // --- 清真食品系列 (25种) ---
-            { id: 21, name: '特级椰枣', category: 'halal', icon: '🌴', price: 2.9, halal: 'HL-2026-001', stock: 300, desc: '规格：沙特麦地那原产特级椰枣' },
-            { id: 22, name: '清真牛肉', category: 'halal', icon: '🥩', price: 2.5, sgs: 'SGS-24-089', halal: 'HL-2026-089', stock: 150, desc: '规格：伊斯兰教法屠宰冷鲜牛肉' },
-            { id: 23, name: '清真羊肉', category: 'halal', icon: '🍖', price: 2.6, sgs: 'SGS-24-090', halal: 'HL-2026-090', stock: 120, desc: '规格：阿訇主刀纯天然羊肉' },
-            { id: 24, name: '清真鸡肉', category: 'halal', icon: '🍗', price: 1.8, sgs: 'SGS-24-091', halal: 'HL-2026-091', stock: 250, desc: '规格：Halal认证无抗生素白羽鸡' },
-            { id: 25, name: '清真鸭肉', category: 'halal', icon: '🦆', price: 2.1, sgs: 'SGS-24-092', halal: 'HL-2026-092', stock: 100, desc: '规格：樱桃谷清真瘦鸭肉' },
-            { id: 26, name: '肥牛卷', category: 'halal', icon: '🥓', price: 2.8, sgs: 'SGS-24-093', halal: 'HL-2026-093', stock: 80, desc: '规格：清真精选肥牛切片' },
-            { id: 27, name: '羔羊切片', category: 'halal', icon: '🍖', price: 2.7, sgs: 'SGS-24-094', halal: 'HL-2026-094', stock: 90, desc: '规格：内蒙清真羔羊肉卷' },
-            { id: 28, name: '清真挂面', category: 'halal', icon: '🍜', price: 0.5, halal: 'HL-2026-095', stock: 500, desc: '规格：无添加清真精制挂面' },
-            { id: 29, name: '新疆馕饼', category: 'halal', icon: '🫓', price: 0.4, halal: 'HL-2026-096', stock: 400, desc: '规格：传统手工烤制芝麻馕' },
-            { id: 30, name: '速食拉面', category: 'halal', icon: '🍲', price: 0.9, halal: 'HL-2026-097', stock: 350, desc: '规格：清真红烧牛肉味速食面' },
-            { id: 31, name: '阿拉伯糖', category: 'halal', icon: '🍬', price: 1.3, halal: 'HL-2026-098', stock: 200, desc: '规格：Halal认证低卡健康代糖' },
-            { id: 32, name: '纯正蜂蜜', category: 'halal', icon: '🍯', price: 2.4, halal: 'HL-2026-099', stock: 110, desc: '规格：也门原产天然野生百花蜜' },
-            { id: 33, name: '混合坚果', category: 'halal', icon: '🥜', price: 2.2, halal: 'HL-2026-100', stock: 160, desc: '规格：伊朗开心果+巴旦木混合装' },
-            { id: 34, name: '清真饼干', category: 'halal', icon: '🍪', price: 0.7, halal: 'HL-2026-101', stock: 300, desc: '规格：马来西亚进口黄油饼干' },
-            { id: 35, name: '土耳其软糖', category: 'halal', icon: '🍬', price: 1.1, halal: 'HL-2026-102', stock: 220, desc: '规格：土耳其原装坚果软糖' },
-            { id: 36, name: '黑巧克力', category: 'halal', icon: '🍫', price: 1.5, halal: 'HL-2026-103', stock: 180, desc: '规格：清真认证75%纯黑巧' },
-            { id: 37, name: '锡兰红茶', category: 'halal', icon: '🍵', price: 1.0, halal: 'HL-2026-104', stock: 260, desc: '规格：斯里兰卡原装红茶包' },
-            { id: 38, name: '咸味奶茶粉', category: 'halal', icon: '🥛', price: 0.8, halal: 'HL-2026-105', stock: 210, desc: '规格：内蒙风味清真咸奶茶' },
-            { id: 39, name: '清真酱油', category: 'halal', icon: '🧂', price: 0.3, halal: 'HL-2026-106', stock: 450, desc: '规格：纯粮酿造无防腐剂酱油' },
-            { id: 40, name: '清真香醋', category: 'halal', icon: '🍶', price: 0.4, halal: 'HL-2026-107', stock: 420, desc: '规格：山西老陈醋清真特供' },
-            { id: 41, name: '火锅底料', category: 'halal', icon: '🌶️', price: 1.6, halal: 'HL-2026-108', stock: 150, desc: '规格：清真牛油麻辣火锅底料' },
-            { id: 42, name: '清真肉肠', category: 'halal', icon: '🌭', price: 1.2, sgs: 'SGS-24-095', halal: 'HL-2026-109', stock: 190, desc: '规格：清真黑椒牛肉烤肠' },
-            { id: 43, name: '清真水饺', category: 'halal', icon: '🥟', price: 1.9, sgs: 'SGS-24-096', halal: 'HL-2026-110', stock: 130, desc: '规格：清真羊肉大葱手工水饺' },
-            { id: 44, name: '自热火锅', category: 'halal', icon: '🥘', price: 2.8, halal: 'HL-2026-111', stock: 60, desc: '规格：清真牛油素食自热小火锅' },
-            { id: 45, name: '清真燕麦', category: 'halal', icon: '🥣', price: 0.9, halal: 'HL-2026-112', stock: 310, desc: '规格：澳洲进口全谷即食燕麦' }
+            { id: 14, name: '砂仁', category: 'spice', icon: '🫒', price: 2.5, sgs: 'SGS-2024-008734', stock: 90, desc: '规格：阳春砂仁' },
+            { id: 15, name: '香叶', category: 'spice', icon: '🍃', price: 0.3, sgs: 'SGS-2024-008735', stock: 400, desc: '规格：土耳其进口香叶' },
+            { id: 16, name: '白芷', category: 'spice', icon: '🥔', price: 0.6, sgs: 'SGS-2024-008736', stock: 210, desc: '规格：川白芷' },
+            { id: 17, name: '山奈', category: 'spice', icon: '🥔', price: 1.4, sgs: 'SGS-2024-008737', stock: 170, desc: '规格：广东山奈' },
+            { id: 18, name: '良姜', category: 'spice', icon: '🫚', price: 0.8, sgs: 'SGS-2024-008738', stock: 140, desc: '规格：高良姜切片' },
+            { id: 19, name: '荜拨', category: 'spice', icon: '🌿', price: 1.7, sgs: 'SGS-2024-008739', stock: 100, desc: '规格：印尼荜拨' },
+            { id: 20, name: '迷迭香', category: 'spice', icon: '🌿', price: 2.7, sgs: 'SGS-2024-008740', stock: 75, desc: '规格：地中海进口迷迭香' },
+            // 清真食品 25种
+            { id: 21, name: '特级椰枣', category: 'halal', icon: '🌴', price: 2.9, halal: 'HL-2026-001', stock: 300, desc: '规格：沙特麦地那原产' },
+            { id: 22, name: '清真牛肉', category: 'halal', icon: '🥩', price: 2.5, sgs: 'SGS-24-089', halal: 'HL-2026-089', stock: 150, desc: '规格：伊斯兰教法屠宰' },
+            { id: 23, name: '清真羊肉', category: 'halal', icon: '🍖', price: 2.6, sgs: 'SGS-24-090', halal: 'HL-2026-090', stock: 120, desc: '规格：阿訇主刀纯天然' },
+            { id: 24, name: '清真鸡肉', category: 'halal', icon: '🍗', price: 1.8, sgs: 'SGS-24-091', halal: 'HL-2026-091', stock: 250, desc: '规格：Halal认证无抗生素' },
+            { id: 25, name: '清真鸭肉', category: 'halal', icon: '🦆', price: 2.1, sgs: 'SGS-24-092', halal: 'HL-2026-092', stock: 100, desc: '规格：樱桃谷瘦鸭肉' },
+            { id: 26, name: '肥牛卷', category: 'halal', icon: '🥓', price: 2.8, sgs: 'SGS-24-093', halal: 'HL-2026-093', stock: 80, desc: '规格：清真精选肥牛' },
+            { id: 27, name: '羔羊切片', category: 'halal', icon: '🍖', price: 2.7, sgs: 'SGS-24-094', halal: 'HL-2026-094', stock: 90, desc: '规格：内蒙清真羔羊' },
+            { id: 28, name: '清真挂面', category: 'halal', icon: '🍜', price: 0.5, halal: 'HL-2026-095', stock: 500, desc: '规格：无添加精制挂面' },
+            { id: 29, name: '新疆馕饼', category: 'halal', icon: '🫓', price: 0.4, halal: 'HL-2026-096', stock: 400, desc: '规格：手工烤制芝麻馕' },
+            { id: 30, name: '速食拉面', category: 'halal', icon: '🍲', price: 0.9, halal: 'HL-2026-097', stock: 350, desc: '规格：红烧牛肉味' },
+            { id: 31, name: '阿拉伯糖', category: 'halal', icon: '🍬', price: 1.3, halal: 'HL-2026-098', stock: 200, desc: '规格：低卡健康代糖' },
+            { id: 32, name: '纯正蜂蜜', category: 'halal', icon: '🍯', price: 2.4, halal: 'HL-2026-099', stock: 110, desc: '规格：也门野生百花蜜' },
+            { id: 33, name: '混合坚果', category: 'halal', icon: '🥜', price: 2.2, halal: 'HL-2026-100', stock: 160, desc: '规格：开心果+巴旦木' },
+            { id: 34, name: '清真饼干', category: 'halal', icon: '🍪', price: 0.7, halal: 'HL-2026-101', stock: 300, desc: '规格：马来西亚进口' },
+            { id: 35, name: '土耳其软糖', category: 'halal', icon: '🍬', price: 1.1, halal: 'HL-2026-102', stock: 220, desc: '规格：坚果软糖' },
+            { id: 36, name: '黑巧克力', category: 'halal', icon: '🍫', price: 1.5, halal: 'HL-2026-103', stock: 180, desc: '规格：75%纯黑巧' },
+            { id: 37, name: '锡兰红茶', category: 'halal', icon: '🍵', price: 1.0, halal: 'HL-2026-104', stock: 260, desc: '规格：斯里兰卡原装' },
+            { id: 38, name: '咸味奶茶粉', category: 'halal', icon: '🥛', price: 0.8, halal: 'HL-2026-105', stock: 210, desc: '规格：内蒙风味' },
+            { id: 39, name: '清真酱油', category: 'halal', icon: '🧂', price: 0.3, halal: 'HL-2026-106', stock: 450, desc: '规格：纯粮酿造' },
+            { id: 40, name: '清真香醋', category: 'halal', icon: '🍶', price: 0.4, halal: 'HL-2026-107', stock: 420, desc: '规格：山西老陈醋' },
+            { id: 41, name: '火锅底料', category: 'halal', icon: '🌶️', price: 1.6, halal: 'HL-2026-108', stock: 150, desc: '规格：清真牛油麻辣' },
+            { id: 42, name: '清真肉肠', category: 'halal', icon: '🌭', price: 1.2, sgs: 'SGS-24-095', halal: 'HL-2026-109', stock: 190, desc: '规格：黑椒牛肉烤肠' },
+            { id: 43, name: '清真水饺', category: 'halal', icon: '🥟', price: 1.9, sgs: 'SGS-24-096', halal: 'HL-2026-110', stock: 130, desc: '规格：羊肉大葱手工' },
+            { id: 44, name: '自热火锅', category: 'halal', icon: '🥘', price: 2.8, halal: 'HL-2026-111', stock: 60, desc: '规格：牛油素食自热' },
+            { id: 45, name: '清真燕麦', category: 'halal', icon: '🥣', price: 0.9, halal: 'HL-2026-112', stock: 310, desc: '规格：澳洲进口全谷' }
         ];
 
         // ============================================
-        // 2. Pi SDK 初始化
+        // 3. Pi SDK 初始化与渲染逻辑
         // ============================================
         Pi.init({ version: "2.0", sandbox: true });
         let isAuthenticated = false;
         let currentUser = null;
 
-        // ============================================
-        // 3. 渲染与交互逻辑
-        // ============================================
         function renderProducts(filter = 'all') {
             const listEl = document.getElementById('product-list');
             listEl.innerHTML = '';
@@ -187,15 +318,20 @@
             if (filter === 'spice' || filter === 'halal') {
                 filtered = products.filter(p => p.category === filter);
             } else if (filter === 'sgs') {
-                filtered = products.filter(p => p.sgs != null); // 筛选所有带SGS认证的
+                filtered = products.filter(p => p.sgs != null);
             }
             
             filtered.forEach(p => {
+                // 动态获取多语言标签（保持简洁，这里直接写死中文/英文切换的示例）
+                const tagSgs = currentLang === 'en' ? 'SGS' : 'SGS认证';
+                const tagHalal = currentLang === 'en' ? 'Halal' : 'Halal认证';
+                const tagChain = currentLang === 'en' ? 'On-chain' : '链上溯源';
+
                 const badgeHtml = `
                     <div class="badge-group">
-                        ${p.sgs ? `<span class="badge badge-sgs">SGS认证</span>` : ''}
-                        ${p.halal ? `<span class="badge badge-halal">Halal认证</span>` : ''}
-                        <span class="badge badge-chain">链上溯源</span>
+                        ${p.sgs ? `<span class="badge badge-sgs">${tagSgs}</span>` : ''}
+                        ${p.halal ? `<span class="badge badge-halal">${tagHalal}</span>` : ''}
+                        <span class="badge badge-chain">${tagChain}</span>
                     </div>
                 `;
                 listEl.innerHTML += `
@@ -223,9 +359,10 @@
         function showDetail(id) {
             const p = products.find(item => item.id === id);
             const detailEl = document.getElementById('detail-content');
-            
-            // 生成随机的模拟链上哈希
             const mockHash = '0x' + Math.random().toString(16).substr(2, 10) + '...' + Math.random().toString(16).substr(2, 6);
+            
+            const dict = translations[currentLang];
+            const btnText = isAuthenticated ? `${dict.pay} ${p.price} Pi ${dict.buy}` : dict.connect;
             
             detailEl.innerHTML = `
                 <div class="detail-image">${p.icon}</div>
@@ -233,28 +370,27 @@
                 <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / 吨</div>
                 
                 <div class="detail-box">
-                    <h3>基础信息</h3>
-                    <div class="detail-row"><span>规格描述</span><span style="text-align:right; max-width:60%;">${p.desc}</span></div>
-                    <div class="detail-row"><span>当前库存</span><span>${p.stock} 吨</span></div>
+                    <h3>${currentLang === 'en' ? 'Basic Info' : '基础信息'}</h3>
+                    <div class="detail-row"><span>${currentLang === 'en' ? 'Specs' : '规格描述'}</span><span style="text-align:right; max-width:60%;">${p.desc}</span></div>
+                    <div class="detail-row"><span>${currentLang === 'en' ? 'Stock' : '当前库存'}</span><span>${p.stock} 吨</span></div>
                 </div>
 
                 <div class="detail-box">
-                    <h3>链上溯源与合规</h3>
-                    ${p.sgs ? `<div class="detail-row"><span>SGS证书</span><span style="color:#1565c0">${p.sgs}</span></div>` : ''}
-                    ${p.halal ? `<div class="detail-row"><span>Halal证书</span><span style="color:#2e7d32">${p.halal}</span></div>` : ''}
-                    <div class="detail-row"><span>合约存证哈希</span><span style="color:#6a1b9a">${mockHash}</span></div>
-                    <p style="font-size: 12px; color: #999; margin-top: 10px;">* 该仓单数据已通过智能合约锚定，不可篡改。</p>
+                    <h3>${currentLang === 'en' ? 'Traceability & Compliance' : '链上溯源与合规'}</h3>
+                    ${p.sgs ? `<div class="detail-row"><span>SGS Cert</span><span style="color:#1565c0">${p.sgs}</span></div>` : ''}
+                    ${p.halal ? `<div class="detail-row"><span>Halal Cert</span><span style="color:#2e7d32">${p.halal}</span></div>` : ''}
+                    <div class="detail-row"><span>Hash</span><span style="color:#6a1b9a">${mockHash}</span></div>
                 </div>
 
                 <div class="detail-box">
-                    <h3>Murabaha (成本加利润) 说明</h3>
+                    <h3>Murabaha</h3>
                     <p style="font-size: 13px; color: #666; line-height: 1.6;">
-                        本交易符合伊斯兰金融原则，无利息 (Riba)。卖方已向您披露该批次商品的采购成本及合理利润点。买方按此固定总价进行支付，链上智能合约将在确认款项后自动转移对应仓单所有权。
+                        ${currentLang === 'en' ? 'This transaction complies with Islamic finance principles (no Riba). The smart contract transfers the warehouse receipt upon payment.' : '本交易符合伊斯兰金融原则，无利息 (Riba)。买方按此固定总价进行支付，链上智能合约将在确认款项后自动转移对应仓单所有权。'}
                     </p>
                 </div>
 
-                <button class="pay-btn" id="detail-pay-btn" onclick="payPi(${p.price}, '${p.name}')" ${isAuthenticated ? '' : 'disabled'}>
-                    ${isAuthenticated ? `支付 ${p.price} Pi 购买` : '请先连接钱包'}
+                <button class="pay-btn" id="detail-pay-btn" data-amount="${p.price}" onclick="payPi(${p.price}, '${p.name}')" ${isAuthenticated ? '' : 'disabled'}>
+                    ${btnText}
                 </button>
             `;
             switchPage('detail');
@@ -277,7 +413,7 @@
         // ============================================
         async function connectPi() {
             try {
-                document.getElementById('connectBtn').innerText = "连接中...";
+                document.getElementById('connectBtn').innerText = "...";
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 isAuthenticated = true;
                 currentUser = auth.user.username;
@@ -290,10 +426,12 @@
                 const payBtn = document.getElementById('detail-pay-btn');
                 if(payBtn) {
                     payBtn.disabled = false;
-                    payBtn.innerText = `支付 ${payBtn.innerText.split(' ')[1]} Pi 购买`;
+                    const amount = payBtn.getAttribute('data-amount');
+                    const dict = translations[currentLang];
+                    payBtn.innerText = `${dict.pay} ${amount} Pi ${dict.buy}`;
                 }
             } catch (err) {
-                document.getElementById('connectBtn').innerText = "Connect Wallet";
+                document.getElementById('connectBtn').innerText = translations[currentLang].connect;
                 alert("连接失败: " + err.message);
             }
         }
@@ -303,12 +441,9 @@
         }
 
         async function payPi(amount, itemName) {
-            if (!isAuthenticated) {
-                alert("请先连接 Pi 钱包");
-                return;
-            }
+            if (!isAuthenticated) return;
             const payBtn = document.getElementById('detail-pay-btn');
-            payBtn.innerText = "处理中...";
+            payBtn.innerText = "...";
             payBtn.disabled = true;
 
             try {
@@ -326,7 +461,7 @@
                             });
                             if (!res.ok) throw new Error('后端批准失败');
                         } catch (err) {
-                            payBtn.innerText = "支付失败，请重试";
+                            payBtn.innerText = "重试";
                             payBtn.disabled = false;
                             alert("批准失败: " + err.message);
                         }
@@ -339,33 +474,34 @@
                                 body: JSON.stringify({ paymentId, txid })
                             });
                             if (!res.ok) throw new Error('后端确认失败');
-                            alert(`${itemName} 支付成功！\n交易哈希: ${txid.substring(0,10)}...`);
-                            payBtn.innerText = "已完成支付";
+                            alert(`${itemName} 支付成功！`);
+                            payBtn.innerText = "已完成";
                         } catch (err) {
                             alert("确认失败: " + err.message);
-                            payBtn.innerText = "重新支付";
+                            payBtn.innerText = "重试";
                             payBtn.disabled = false;
                         }
                     },
-                    onCancel: function(paymentId) {
-                        payBtn.innerText = `支付 ${amount} Pi 购买`;
+                    onCancel: function() {
+                        const dict = translations[currentLang];
+                        payBtn.innerText = `${dict.pay} ${amount} Pi ${dict.buy}`;
                         payBtn.disabled = false;
                     },
-                    onError: function(error, payment) {
+                    onError: function(error) {
                         alert("支付错误: " + error.message);
-                        payBtn.innerText = `支付 ${amount} Pi 购买`;
                         payBtn.disabled = false;
                     }
                 });
             } catch (error) {
                 alert("创建支付失败: " + error.message);
-                payBtn.innerText = `支付 ${amount} Pi 购买`;
                 payBtn.disabled = false;
             }
         }
 
         window.addEventListener('load', () => {
             renderProducts();
+            // 初始化多语言
+            changeLanguage('en'); 
         });
     </script>
 </body>
