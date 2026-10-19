@@ -12,129 +12,163 @@
         header { background: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
-        #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
         #connectBtn:active { background-color: #b71c1c; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
+        
+        /* 新增：分类导航栏 */
+        .nav-tabs { display: flex; background: #fff; padding: 10px 16px; border-bottom: 1px solid #eaeaea; }
+        .nav-tab { flex: 1; text-align: center; padding: 10px 0; font-size: 16px; font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
+        .nav-tab.active { color: #d32f2f; border-bottom-color: #d32f2f; }
+
         .container { padding: 16px; max-width: 480px; margin: 0 auto; }
-        .section-title { font-size: 22px; font-weight: 700; margin: 8px 0 4px 0; }
-        .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; }
-        .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; }
+        .section-title { font-size: 20px; font-weight: 700; margin: 10px 0 16px 0; }
+        
+        .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; position: relative; }
         .card-header { display: flex; align-items: center; margin-bottom: 8px; }
         .card-icon { font-size: 26px; margin-right: 10px; }
         .card-title { font-size: 18px; font-weight: 700; }
         .card-details { font-size: 14px; color: #666; line-height: 1.8; margin-bottom: 6px; }
+        
+        /* 新增：溯源和认证标签 */
+        .badge-group { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
+        .badge { font-size: 12px; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+        .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
+        .badge-halal { background-color: #e8f5e9; color: #2e7d32; }
+        .badge-chain { background-color: #f3e5f5; color: #6a1b9a; }
+
         .card-price { color: #d32f2f; font-size: 20px; font-weight: 700; margin: 10px 0 12px 0; }
-        .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
+        .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
-        .pay-btn:active:not(:disabled) { background-color: #b71c1c; }
-        #statusMsg { text-align: center; padding: 12px; font-size: 14px; color: #666; }
+        
+        /* 分类容器隐藏控制 */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        #statusMsg { text-align: center; padding: 20px; font-size: 14px; color: #666; }
     </style>
 </head>
 <body>
     <header>
         <div class="logo">DZPJ <span>RWA Trade</span></div>
         <div id="userStatus"></div>
-        <button id="connectBtn" onclick="connectPi()">Connect Pi Wallet</button>
+        <button id="connectBtn" onclick="connectPi()">Connect Wallet</button>
     </header>
 
+    <!-- 新增：分类切换栏 -->
+    <div class="nav-tabs">
+        <div class="nav-tab active" onclick="switchTab('spices')">香料系列</div>
+        <div class="nav-tab" onclick="switchTab('halal')">伊斯兰食品</div>
+    </div>
+
     <div class="container">
-        <div class="section-title">香料仓单 · 可交易资产</div>
-        <div class="subtitle">Pi Network · RWA 实物资产代币化交易</div>
+        
+        <!-- 香料系列内容区 -->
+        <div id="tab-spices" class="tab-content active">
+            <div class="section-title">香料仓单 · 可交易资产</div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">⭐</div>
+                    <div class="card-title">八角</div>
+                </div>
+                <div class="badge-group">
+                    <span class="badge badge-sgs">SGS认证</span>
+                    <span class="badge badge-chain">链上溯源</span>
+                </div>
+                <div class="card-details">
+                    规格：一级大红八角（干）<br>
+                    SGS编号：SGS-2024-008721<br>
+                    库存：50 吨
+                </div>
+                <div class="card-price">1 Pi/吨</div>
+                <button class="pay-btn" onclick="payPi(1, '八角')" disabled>使用 Pi 支付</button>
+            </div>
 
-        <!-- 八角 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">⭐</div>
-                <div class="card-title">八角</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🌿</div>
+                    <div class="card-title">桂皮</div>
+                </div>
+                <div class="badge-group">
+                    <span class="badge badge-sgs">SGS认证</span>
+                    <span class="badge badge-chain">链上溯源</span>
+                </div>
+                <div class="card-details">
+                    规格：A级肉桂卷（去皮）<br>
+                    SGS编号：SGS-2024-008722<br>
+                    库存：80 吨
+                </div>
+                <div class="card-price">12 Pi/吨</div>
+                <button class="pay-btn" onclick="payPi(12, '桂皮')" disabled>使用 Pi 支付</button>
             </div>
-            <div class="card-details">
-                规格：一级大红八角（干）<br>
-                SGS：SGS-2024-008721<br>
-                库存：50 吨
-            </div>
-            <div class="card-price">1 Pi/吨</div>
-            <button class="pay-btn" onclick="payPi(1)" disabled>使用 Pi 支付</button>
         </div>
 
-        <!-- 桂皮 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">🌿</div>
-                <div class="card-title">桂皮</div>
-            </div>
-            <div class="card-details">
-                规格：A级肉桂卷（去皮）<br>
-                SGS：SGS-2024-008722<br>
-                库存：80 吨
-            </div>
-            <div class="card-price">12 Pi/吨</div>
-            <button class="pay-btn" onclick="payPi(12)" disabled>使用 Pi 支付</button>
-        </div>
+        <!-- 伊斯兰食品内容区 -->
+        <div id="tab-halal" class="tab-content">
+            <div class="section-title">清真食品 · 认证资产</div>
 
-        <!-- 丁香 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">🌺</div>
-                <div class="card-title">丁香</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🌴</div>
+                    <div class="card-title">特级椰枣</div>
+                </div>
+                <div class="badge-group">
+                    <span class="badge badge-halal">Halal认证</span>
+                    <span class="badge badge-chain">链上溯源</span>
+                </div>
+                <div class="card-details">
+                    规格：沙特原产特级椰枣<br>
+                    Halal证书：HL-2026-001<br>
+                    库存：200 吨
+                </div>
+                <div class="card-price">20 Pi/吨</div>
+                <button class="pay-btn" onclick="payPi(20, '特级椰枣')" disabled>使用 Pi 支付</button>
             </div>
-            <div class="card-details">
-                规格：优质丁香（完整花蕾）<br>
-                SGS：SGS-2024-008723<br>
-                库存：35 吨
-            </div>
-            <div class="card-price">21 Pi/吨</div>
-            <button class="pay-btn" onclick="payPi(21)" disabled>使用 Pi 支付</button>
-        </div>
 
-        <!-- 豆蔻 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">🫘</div>
-                <div class="card-title">豆蔻</div>
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon">🥩</div>
+                    <div class="card-title">清真牛肉制品</div>
+                </div>
+                <div class="badge-group">
+                    <span class="badge badge-halal">Halal认证</span>
+                    <span class="badge badge-sgs">SGS认证</span>
+                </div>
+                <div class="card-details">
+                    规格：伊斯兰教法屠宰加工<br>
+                    Halal证书：HL-2026-089<br>
+                    库存：30 吨
+                </div>
+                <div class="card-price">50 Pi/吨</div>
+                <button class="pay-btn" onclick="payPi(50, '清真牛肉')" disabled>使用 Pi 支付</button>
             </div>
-            <div class="card-details">
-                规格：一级砂仁豆蔻<br>
-                SGS：SGS-2024-008724<br>
-                库存：45 吨
-            </div>
-            <div class="card-price">17 Pi/吨</div>
-            <button class="pay-btn" onclick="payPi(17)" disabled>使用 Pi 支付</button>
-        </div>
-
-        <!-- 草果 -->
-        <div class="card">
-            <div class="card-header">
-                <div class="card-icon">🌰</div>
-                <div class="card-title">草果</div>
-            </div>
-            <div class="card-details">
-                规格：精选烟熏草果<br>
-                SGS：SGS-2024-008725<br>
-                库存：60 吨
-            </div>
-            <div class="card-price">16 Pi/吨</div>
-            <button class="pay-btn" onclick="payPi(16)" disabled>使用 Pi 支付</button>
         </div>
 
         <div id="statusMsg"></div>
     </div>
 
     <script>
-        // ============================================
-        // Pi Network SDK 集成（沙盒测试专用）
-        // ============================================
-
-        // 1. 初始化 SDK
+        // 1. 初始化 SDK (沙盒模式)
         Pi.init({ version: "2.0", sandbox: true });
-        console.log("Pi SDK 已初始化（沙盒模式）");
-
         let isAuthenticated = false;
 
-        // 2. 连接钱包
+        // 2. 标签切换逻辑
+        function switchTab(tabName) {
+            // 隐藏所有内容
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+            
+            // 显示目标内容
+            document.getElementById('tab-' + tabName).classList.add('active');
+            // 高亮当前按钮
+            event.target.classList.add('active');
+        }
+
+        // 3. 连接钱包
         async function connectPi() {
             try {
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
-                console.log("授权成功:", auth);
                 isAuthenticated = true;
 
                 document.getElementById('connectBtn').style.display = 'none';
@@ -150,36 +184,12 @@
             }
         }
 
-              // 处理未完成的支付（自动在后端完成，清除卡单）
-        async function onIncompletePaymentFound(payment) {
-            console.log("发现未完成的支付，正在自动处理:", payment);
-            try {
-                const paymentId = payment.identifier;
-                // 从支付元数据中获取 txid（如果是已经上链的交易）
-                const txid = payment.transaction && payment.transaction.txid ? payment.transaction.txid : null;
-
-                if (txid) {
-                    // 有交易ID，通知后端去完成这笔支付
-                    const res = await fetch('/api/complete', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ paymentId, txid })
-                    });
-                    if (res.ok) {
-                        console.log("卡单已成功标记为完成:", paymentId);
-                    } else {
-                        console.error("标记完成失败");
-                    }
-                } else {
-                    console.log("未找到链上交易ID，这笔支付可能只是超时，无需处理");
-                }
-            } catch (err) {
-                console.error("自动处理卡单失败:", err);
-            }
+        function onIncompletePaymentFound(payment) {
+            console.log("发现未完成的支付:", payment);
         }
 
-        // 3. 发起支付（调用后端批准）
-        async function payPi(amount) {
+        // 4. 发起支付（现在接收金额和商品名称两个参数）
+        async function payPi(amount, itemName) {
             if (!isAuthenticated) {
                 alert("请先连接 Pi 钱包");
                 return;
@@ -188,74 +198,47 @@
             try {
                 const payment = await Pi.createPayment({
                     amount: amount,
-                    memo: "购买香料仓单 - 金额: " + amount + " Pi",
-                    metadata: { item: "spice_receipt", amount: amount }
+                    memo: "购买 " + itemName + " - 金额: " + amount + " Pi",
+                    metadata: { item: itemName, amount: amount }
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
-                        console.log("Payment ready for approval:", paymentId);
                         try {
-                            // 调用你部署在 Vercel 的后端 /api/approve
                             const res = await fetch('/api/approve', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ paymentId })
                             });
-                            if (!res.ok) {
-                                const errData = await res.json();
-                                throw new Error(errData.error || 'Approval failed');
-                            }
-                            console.log("支付已批准");
+                            if (!res.ok) throw new Error('Approval failed');
                             document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
                         } catch (err) {
-                            console.error("批准失败:", err);
                             document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
                         }
                     },
-                                      onReadyForServerCompletion: async function(paymentId, txid) {
-                        console.log("支付完成，准备通知后端确认:", paymentId, txid);
+                    onReadyForServerCompletion: async function(paymentId, txid) {
                         try {
                             const res = await fetch('/api/complete', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ paymentId, txid })
                             });
-                            if (!res.ok) {
-                                const errData = await res.json();
-                                throw new Error(errData.error || 'Completion failed');
-                            }
-                            console.log("后端已确认完成");
+                            if (!res.ok) throw new Error('Completion failed');
                             document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
-                            alert("支付成功！");
+                            alert(itemName + " 支付成功！");
                         } catch (err) {
-                            console.error("完成确认失败:", err);
                             document.getElementById('statusMsg').textContent = '完成确认失败: ' + err.message;
                         }
                     },
                     onCancel: function(paymentId) {
-                        console.log("支付已取消:", paymentId);
                         document.getElementById('statusMsg').textContent = '支付已取消';
                     },
                     onError: function(error, payment) {
-                        console.error("支付错误:", error, payment);
                         document.getElementById('statusMsg').textContent = '支付错误: ' + error.message;
                     }
                 });
-                console.log("支付流程启动:", payment);
             } catch (error) {
-                console.error("创建支付失败:", error);
                 document.getElementById('statusMsg').textContent = '创建支付失败: ' + error.message;
             }
         }
-
-        // 页面加载后检测 Pi SDK
-        window.addEventListener('load', function() {
-            if (typeof Pi === 'undefined') {
-                document.getElementById('statusMsg').textContent = '⚠️ 未检测到 Pi SDK，请确保在 Pi Browser 或沙盒中打开';
-                console.error("Pi SDK 未加载");
-            } else {
-                console.log("Pi SDK 已加载");
-            }
-        });
     </script>
 </body>
 </html>
