@@ -2,185 +2,299 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DZPJ Trade</title>
-    <!-- Pi SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <style>
-        * { box-sizing: border-box; }
-        body { background-color: #f5f5f0; color: #1a1a1a; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; }
-        header { background: #fff; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; position: sticky; top: 0; z-index: 100; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+        body { background-color: #f8f9fa; color: #333; padding-bottom: 60px; }
+        
+        /* 顶部导航 */
+        header { background: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
-        #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; cursor: pointer; }
-        #connectBtn:active { background-color: #b71c1c; }
+        #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
+        #connectBtn:disabled { background-color: #ccc; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
-        
-        /* 新增：分类导航栏 */
-        .nav-tabs { display: flex; background: #fff; padding: 10px 16px; border-bottom: 1px solid #eaeaea; }
-        .nav-tab { flex: 1; text-align: center; padding: 10px 0; font-size: 16px; font-weight: 600; color: #666; cursor: pointer; border-bottom: 3px solid transparent; }
-        .nav-tab.active { color: #d32f2f; border-bottom-color: #d32f2f; }
 
-        .container { padding: 16px; max-width: 480px; margin: 0 auto; }
-        .section-title { font-size: 20px; font-weight: 700; margin: 10px 0 16px 0; }
+        /* 页面容器 */
+        .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; animation: fadeIn 0.3s; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* 搜索框 */
+        .search-bar { background: #fff; border-radius: 20px; padding: 10px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; }
+        .search-bar input { border: none; outline: none; flex: 1; font-size: 14px; }
+
+        /* 分类栏 */
+        .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px; }
+        .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; white-space: nowrap; border: 1px solid #eee; cursor: pointer; }
+        .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+
+        /* 商品卡片 */
+        .card { background: #fff; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid #f0f0f0; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .card-left { flex: 1; }
+        .card-header { display: flex; align-items: center; margin-bottom: 6px; }
+        .card-icon { font-size: 20px; margin-right: 8px; }
+        .card-title { font-size: 16px; font-weight: 700; }
+        .card-price { color: #d32f2f; font-size: 16px; font-weight: 700; margin-top: 8px; }
+        .card-right { font-size: 24px; color: #ccc; font-weight: bold; padding-left: 10px; }
         
-        .card { background: #fff; border-radius: 14px; padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border: 1px solid #f0f0f0; position: relative; }
-        .card-header { display: flex; align-items: center; margin-bottom: 8px; }
-        .card-icon { font-size: 26px; margin-right: 10px; }
-        .card-title { font-size: 18px; font-weight: 700; }
-        .card-details { font-size: 14px; color: #666; line-height: 1.8; margin-bottom: 6px; }
-        
-        /* 新增：溯源和认证标签 */
-        .badge-group { display: flex; gap: 6px; margin-bottom: 8px; flex-wrap: wrap; }
-        .badge { font-size: 12px; padding: 4px 8px; border-radius: 4px; font-weight: 500; }
+        .badge-group { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;}
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 500; }
         .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
         .badge-halal { background-color: #e8f5e9; color: #2e7d32; }
         .badge-chain { background-color: #f3e5f5; color: #6a1b9a; }
 
-        .card-price { color: #d32f2f; font-size: 20px; font-weight: 700; margin: 10px 0 12px 0; }
-        .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 12px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
-        .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        /* 详情页 */
+        .back-btn { display: inline-block; margin-bottom: 16px; font-size: 14px; color: #666; cursor: pointer; background: #fff; padding: 8px 12px; border-radius: 8px; border: 1px solid #eee; }
+        .detail-image { font-size: 80px; text-align: center; padding: 20px; background: #fff; border-radius: 12px; margin-bottom: 16px; }
+        .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
+        .detail-box h3 { font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
+        .detail-row { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 8px; }
         
-        /* 分类容器隐藏控制 */
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
+        /* 支付按钮 */
+        .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 20px; }
+        .pay-btn:disabled { background-color: #ccc; cursor: not-allowed; }
 
-        #statusMsg { text-align: center; padding: 20px; font-size: 14px; color: #666; }
+        /* 底部导航 */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; text-align: center; padding: 12px 0; font-size: 12px; color: #999; cursor: pointer; }
+        .nav-item.active { color: #d32f2f; font-weight: 600; }
+        .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
     </style>
 </head>
 <body>
+
     <header>
-        <div class="logo">DZPJ <span>RWA Trade</span></div>
+        <div class="logo">DZPJ <span>RWA</span></div>
         <div id="userStatus"></div>
         <button id="connectBtn" onclick="connectPi()">Connect Wallet</button>
     </header>
 
-    <!-- 新增：分类切换栏 -->
-    <div class="nav-tabs">
-        <div class="nav-tab active" onclick="switchTab('spices')">香料系列</div>
-        <div class="nav-tab" onclick="switchTab('halal')">伊斯兰食品</div>
-    </div>
-
-    <div class="container">
-        
-        <!-- 香料系列内容区 -->
-        <div id="tab-spices" class="tab-content active">
-            <div class="section-title">香料仓单 · 可交易资产</div>
-            
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">⭐</div>
-                    <div class="card-title">八角</div>
-                </div>
-                <div class="badge-group">
-                    <span class="badge badge-sgs">SGS认证</span>
-                    <span class="badge badge-chain">链上溯源</span>
-                </div>
-                <div class="card-details">
-                    规格：一级大红八角（干）<br>
-                    SGS编号：SGS-2024-008721<br>
-                    库存：50 吨
-                </div>
-                <div class="card-price">1 Pi/吨</div>
-                <button class="pay-btn" onclick="payPi(1, '八角')" disabled>使用 Pi 支付</button>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">🌿</div>
-                    <div class="card-title">桂皮</div>
-                </div>
-                <div class="badge-group">
-                    <span class="badge badge-sgs">SGS认证</span>
-                    <span class="badge badge-chain">链上溯源</span>
-                </div>
-                <div class="card-details">
-                    规格：A级肉桂卷（去皮）<br>
-                    SGS编号：SGS-2024-008722<br>
-                    库存：80 吨
-                </div>
-                <div class="card-price">12 Pi/吨</div>
-                <button class="pay-btn" onclick="payPi(12, '桂皮')" disabled>使用 Pi 支付</button>
-            </div>
+    <div id="page-home" class="page active">
+        <div class="search-bar">
+            <span style="margin-right: 8px; color: #999;">🔍</span>
+            <input type="text" placeholder="搜索仓单 / SGS编号 / 认证...">
         </div>
 
-        <!-- 伊斯兰食品内容区 -->
-        <div id="tab-halal" class="tab-content">
-            <div class="section-title">清真食品 · 认证资产</div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">🌴</div>
-                    <div class="card-title">特级椰枣</div>
-                </div>
-                <div class="badge-group">
-                    <span class="badge badge-halal">Halal认证</span>
-                    <span class="badge badge-chain">链上溯源</span>
-                </div>
-                <div class="card-details">
-                    规格：沙特原产特级椰枣<br>
-                    Halal证书：HL-2026-001<br>
-                    库存：200 吨
-                </div>
-                <div class="card-price">20 Pi/吨</div>
-                <button class="pay-btn" onclick="payPi(20, '特级椰枣')" disabled>使用 Pi 支付</button>
-            </div>
-
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-icon">🥩</div>
-                    <div class="card-title">清真牛肉制品</div>
-                </div>
-                <div class="badge-group">
-                    <span class="badge badge-halal">Halal认证</span>
-                    <span class="badge badge-sgs">SGS认证</span>
-                </div>
-                <div class="card-details">
-                    规格：伊斯兰教法屠宰加工<br>
-                    Halal证书：HL-2026-089<br>
-                    库存：30 吨
-                </div>
-                <div class="card-price">50 Pi/吨</div>
-                <button class="pay-btn" onclick="payPi(50, '清真牛肉')" disabled>使用 Pi 支付</button>
-            </div>
+        <div class="filter-tabs">
+            <div class="filter-tab active" onclick="filterCategory('all', this)">全部</div>
+            <div class="filter-tab" onclick="filterCategory('spice', this)">香料</div>
+            <div class="filter-tab" onclick="filterCategory('halal', this)">清真食品</div>
+            <div class="filter-tab" onclick="filterCategory('sgs', this)">SGS认证</div>
         </div>
 
-        <div id="statusMsg"></div>
+        <div id="product-list"></div>
     </div>
+
+    <div id="page-detail" class="page">
+        <div class="back-btn" onclick="switchPage('home')">← 返回</div>
+        <div id="detail-content"></div>
+    </div>
+
+    <div id="page-profile" class="page">
+        <div class="detail-box" style="text-align: center; padding: 30px 16px;">
+            <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
+            <h2 id="profile-username" style="font-size: 18px; margin-bottom: 5px;">未连接钱包</h2>
+            <p style="font-size: 13px; color: #888;">请点击右上角连接钱包</p>
+        </div>
+        <div class="detail-box">
+            <h3>我的订单</h3>
+            <p style="font-size: 13px; color: #999; text-align: center; padding: 20px 0;">暂无订单记录</p>
+        </div>
+    </div>
+
+    <nav class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
+            <span class="nav-icon">🏠</span>首页
+        </div>
+        <div class="nav-item" id="nav-profile" onclick="switchPage('profile')">
+            <span class="nav-icon">👤</span>我的
+        </div>
+    </nav>
 
     <script>
-        // 1. 初始化 SDK (沙盒模式)
+        // ============================================
+        // 1. 庞大商品库 (价格区间 0.1 - 3.0 Pi)
+        // ============================================
+        const products = [
+            // --- 乐陵香料系列 (20种) ---
+            { id: 1, name: '大红八角', category: 'spice', icon: '⭐', price: 1.5, sgs: 'SGS-2024-008721', stock: 150, desc: '规格：一级大红八角（干），乐陵集散' },
+            { id: 2, name: '肉桂卷', category: 'spice', icon: '🌿', price: 0.8, sgs: 'SGS-2024-008722', stock: 200, desc: '规格：A级肉桂卷（去皮），香味浓郁' },
+            { id: 3, name: '汉源花椒', category: 'spice', icon: '🔴', price: 2.1, sgs: 'SGS-2024-008723', stock: 120, desc: '规格：大红袍花椒，麻香纯正' },
+            { id: 4, name: '小茴香', category: 'spice', icon: '🌾', price: 0.6, sgs: 'SGS-2024-008724', stock: 300, desc: '规格：内蒙小茴香，颗粒饱满' },
+            { id: 5, name: '特级丁香', category: 'spice', icon: '🌺', price: 2.8, sgs: 'SGS-2024-008725', stock: 80, desc: '规格：优质丁香（完整花蕾），高精油' },
+            { id: 6, name: '肉豆蔻', category: 'spice', icon: '🟤', price: 1.9, sgs: 'SGS-2024-008726', stock: 110, desc: '规格：印尼进口肉豆蔻，颗粒饱满' },
+            { id: 7, name: '草果', category: 'spice', icon: '🍂', price: 1.2, sgs: 'SGS-2024-008727', stock: 140, desc: '规格：云南精选烟熏草果' },
+            { id: 8, name: '干姜块', category: 'spice', icon: '🫚', price: 0.5, sgs: 'SGS-2024-008728', stock: 220, desc: '规格：山东干姜，辛辣味足' },
+            { id: 9, name: '白胡椒', category: 'spice', icon: '⚪', price: 2.3, sgs: 'SGS-2024-008729', stock: 180, desc: '规格：海南白胡椒，水洗去壳' },
+            { id: 10, name: '黑胡椒', category: 'spice', icon: '⚫', price: 2.0, sgs: 'SGS-2024-008730', stock: 160, desc: '规格：越南原产黑胡椒，特级水洗' },
+            { id: 11, name: '孜然', category: 'spice', icon: '🌱', price: 0.9, sgs: 'SGS-2024-008731', stock: 250, desc: '规格：新疆大颗粒孜然，去杂干净' },
+            { id: 12, name: '甘草片', category: 'spice', icon: '🪵', price: 0.7, sgs: 'SGS-2024-008732', stock: 190, desc: '规格：新疆甘草切片，甜味纯正' },
+            { id: 13, name: '陈皮丝', category: 'spice', icon: '🍊', price: 1.1, sgs: 'SGS-2024-008733', stock: 130, desc: '规格：三年陈新会陈皮丝' },
+            { id: 14, name: '砂仁', category: 'spice', icon: '🫒', price: 2.5, sgs: 'SGS-2024-008734', stock: 90, desc: '规格：阳春砂仁，去壳留仁' },
+            { id: 15, name: '香叶', category: 'spice', icon: '🍃', price: 0.3, sgs: 'SGS-2024-008735', stock: 400, desc: '规格：土耳其进口香叶，无破损' },
+            { id: 16, name: '白芷', category: 'spice', icon: '🥔', price: 0.6, sgs: 'SGS-2024-008736', stock: 210, desc: '规格：川白芷，切片均匀' },
+            { id: 17, name: '山奈', category: 'spice', icon: '🥔', price: 1.4, sgs: 'SGS-2024-008737', stock: 170, desc: '规格：广东山奈，沙姜风味' },
+            { id: 18, name: '良姜', category: 'spice', icon: '🫚', price: 0.8, sgs: 'SGS-2024-008738', stock: 140, desc: '规格：高良姜切片，去腥提鲜' },
+            { id: 19, name: '荜拨', category: 'spice', icon: '🌿', price: 1.7, sgs: 'SGS-2024-008739', stock: 100, desc: '规格：印尼荜拨，长条饱满' },
+            { id: 20, name: '迷迭香', category: 'spice', icon: '🌿', price: 2.7, sgs: 'SGS-2024-008740', stock: 75, desc: '规格：地中海进口迷迭香叶' },
+
+            // --- 清真食品系列 (25种) ---
+            { id: 21, name: '特级椰枣', category: 'halal', icon: '🌴', price: 2.9, halal: 'HL-2026-001', stock: 300, desc: '规格：沙特麦地那原产特级椰枣' },
+            { id: 22, name: '清真牛肉', category: 'halal', icon: '🥩', price: 2.5, sgs: 'SGS-24-089', halal: 'HL-2026-089', stock: 150, desc: '规格：伊斯兰教法屠宰冷鲜牛肉' },
+            { id: 23, name: '清真羊肉', category: 'halal', icon: '🍖', price: 2.6, sgs: 'SGS-24-090', halal: 'HL-2026-090', stock: 120, desc: '规格：阿訇主刀纯天然羊肉' },
+            { id: 24, name: '清真鸡肉', category: 'halal', icon: '🍗', price: 1.8, sgs: 'SGS-24-091', halal: 'HL-2026-091', stock: 250, desc: '规格：Halal认证无抗生素白羽鸡' },
+            { id: 25, name: '清真鸭肉', category: 'halal', icon: '🦆', price: 2.1, sgs: 'SGS-24-092', halal: 'HL-2026-092', stock: 100, desc: '规格：樱桃谷清真瘦鸭肉' },
+            { id: 26, name: '肥牛卷', category: 'halal', icon: '🥓', price: 2.8, sgs: 'SGS-24-093', halal: 'HL-2026-093', stock: 80, desc: '规格：清真精选肥牛切片' },
+            { id: 27, name: '羔羊切片', category: 'halal', icon: '🍖', price: 2.7, sgs: 'SGS-24-094', halal: 'HL-2026-094', stock: 90, desc: '规格：内蒙清真羔羊肉卷' },
+            { id: 28, name: '清真挂面', category: 'halal', icon: '🍜', price: 0.5, halal: 'HL-2026-095', stock: 500, desc: '规格：无添加清真精制挂面' },
+            { id: 29, name: '新疆馕饼', category: 'halal', icon: '🫓', price: 0.4, halal: 'HL-2026-096', stock: 400, desc: '规格：传统手工烤制芝麻馕' },
+            { id: 30, name: '速食拉面', category: 'halal', icon: '🍲', price: 0.9, halal: 'HL-2026-097', stock: 350, desc: '规格：清真红烧牛肉味速食面' },
+            { id: 31, name: '阿拉伯糖', category: 'halal', icon: '🍬', price: 1.3, halal: 'HL-2026-098', stock: 200, desc: '规格：Halal认证低卡健康代糖' },
+            { id: 32, name: '纯正蜂蜜', category: 'halal', icon: '🍯', price: 2.4, halal: 'HL-2026-099', stock: 110, desc: '规格：也门原产天然野生百花蜜' },
+            { id: 33, name: '混合坚果', category: 'halal', icon: '🥜', price: 2.2, halal: 'HL-2026-100', stock: 160, desc: '规格：伊朗开心果+巴旦木混合装' },
+            { id: 34, name: '清真饼干', category: 'halal', icon: '🍪', price: 0.7, halal: 'HL-2026-101', stock: 300, desc: '规格：马来西亚进口黄油饼干' },
+            { id: 35, name: '土耳其软糖', category: 'halal', icon: '🍬', price: 1.1, halal: 'HL-2026-102', stock: 220, desc: '规格：土耳其原装坚果软糖' },
+            { id: 36, name: '黑巧克力', category: 'halal', icon: '🍫', price: 1.5, halal: 'HL-2026-103', stock: 180, desc: '规格：清真认证75%纯黑巧' },
+            { id: 37, name: '锡兰红茶', category: 'halal', icon: '🍵', price: 1.0, halal: 'HL-2026-104', stock: 260, desc: '规格：斯里兰卡原装红茶包' },
+            { id: 38, name: '咸味奶茶粉', category: 'halal', icon: '🥛', price: 0.8, halal: 'HL-2026-105', stock: 210, desc: '规格：内蒙风味清真咸奶茶' },
+            { id: 39, name: '清真酱油', category: 'halal', icon: '🧂', price: 0.3, halal: 'HL-2026-106', stock: 450, desc: '规格：纯粮酿造无防腐剂酱油' },
+            { id: 40, name: '清真香醋', category: 'halal', icon: '🍶', price: 0.4, halal: 'HL-2026-107', stock: 420, desc: '规格：山西老陈醋清真特供' },
+            { id: 41, name: '火锅底料', category: 'halal', icon: '🌶️', price: 1.6, halal: 'HL-2026-108', stock: 150, desc: '规格：清真牛油麻辣火锅底料' },
+            { id: 42, name: '清真肉肠', category: 'halal', icon: '🌭', price: 1.2, sgs: 'SGS-24-095', halal: 'HL-2026-109', stock: 190, desc: '规格：清真黑椒牛肉烤肠' },
+            { id: 43, name: '清真水饺', category: 'halal', icon: '🥟', price: 1.9, sgs: 'SGS-24-096', halal: 'HL-2026-110', stock: 130, desc: '规格：清真羊肉大葱手工水饺' },
+            { id: 44, name: '自热火锅', category: 'halal', icon: '🥘', price: 2.8, halal: 'HL-2026-111', stock: 60, desc: '规格：清真牛油素食自热小火锅' },
+            { id: 45, name: '清真燕麦', category: 'halal', icon: '🥣', price: 0.9, halal: 'HL-2026-112', stock: 310, desc: '规格：澳洲进口全谷即食燕麦' }
+        ];
+
+        // ============================================
+        // 2. Pi SDK 初始化
+        // ============================================
         Pi.init({ version: "2.0", sandbox: true });
         let isAuthenticated = false;
+        let currentUser = null;
 
-        // 2. 标签切换逻辑
-        function switchTab(tabName) {
-            // 隐藏所有内容
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+        // ============================================
+        // 3. 渲染与交互逻辑
+        // ============================================
+        function renderProducts(filter = 'all') {
+            const listEl = document.getElementById('product-list');
+            listEl.innerHTML = '';
             
-            // 显示目标内容
-            document.getElementById('tab-' + tabName).classList.add('active');
-            // 高亮当前按钮
-            event.target.classList.add('active');
+            let filtered = products;
+            if (filter === 'spice' || filter === 'halal') {
+                filtered = products.filter(p => p.category === filter);
+            } else if (filter === 'sgs') {
+                filtered = products.filter(p => p.sgs != null); // 筛选所有带SGS认证的
+            }
+            
+            filtered.forEach(p => {
+                const badgeHtml = `
+                    <div class="badge-group">
+                        ${p.sgs ? `<span class="badge badge-sgs">SGS认证</span>` : ''}
+                        ${p.halal ? `<span class="badge badge-halal">Halal认证</span>` : ''}
+                        <span class="badge badge-chain">链上溯源</span>
+                    </div>
+                `;
+                listEl.innerHTML += `
+                    <div class="card" onclick="showDetail(${p.id})">
+                        <div class="card-left">
+                            <div class="card-header">
+                                <div class="card-icon">${p.icon}</div>
+                                <div class="card-title">${p.name}</div>
+                            </div>
+                            ${badgeHtml}
+                            <div class="card-price">${p.price} Pi / 吨</div>
+                        </div>
+                        <div class="card-right">›</div>
+                    </div>
+                `;
+            });
         }
 
-        // 3. 连接钱包
+        function filterCategory(category, el) {
+            document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+            el.classList.add('active');
+            renderProducts(category);
+        }
+
+        function showDetail(id) {
+            const p = products.find(item => item.id === id);
+            const detailEl = document.getElementById('detail-content');
+            
+            // 生成随机的模拟链上哈希
+            const mockHash = '0x' + Math.random().toString(16).substr(2, 10) + '...' + Math.random().toString(16).substr(2, 6);
+            
+            detailEl.innerHTML = `
+                <div class="detail-image">${p.icon}</div>
+                <h2 style="font-size: 22px; margin-bottom: 8px;">${p.name}</h2>
+                <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / 吨</div>
+                
+                <div class="detail-box">
+                    <h3>基础信息</h3>
+                    <div class="detail-row"><span>规格描述</span><span style="text-align:right; max-width:60%;">${p.desc}</span></div>
+                    <div class="detail-row"><span>当前库存</span><span>${p.stock} 吨</span></div>
+                </div>
+
+                <div class="detail-box">
+                    <h3>链上溯源与合规</h3>
+                    ${p.sgs ? `<div class="detail-row"><span>SGS证书</span><span style="color:#1565c0">${p.sgs}</span></div>` : ''}
+                    ${p.halal ? `<div class="detail-row"><span>Halal证书</span><span style="color:#2e7d32">${p.halal}</span></div>` : ''}
+                    <div class="detail-row"><span>合约存证哈希</span><span style="color:#6a1b9a">${mockHash}</span></div>
+                    <p style="font-size: 12px; color: #999; margin-top: 10px;">* 该仓单数据已通过智能合约锚定，不可篡改。</p>
+                </div>
+
+                <div class="detail-box">
+                    <h3>Murabaha (成本加利润) 说明</h3>
+                    <p style="font-size: 13px; color: #666; line-height: 1.6;">
+                        本交易符合伊斯兰金融原则，无利息 (Riba)。卖方已向您披露该批次商品的采购成本及合理利润点。买方按此固定总价进行支付，链上智能合约将在确认款项后自动转移对应仓单所有权。
+                    </p>
+                </div>
+
+                <button class="pay-btn" id="detail-pay-btn" onclick="payPi(${p.price}, '${p.name}')" ${isAuthenticated ? '' : 'disabled'}>
+                    ${isAuthenticated ? `支付 ${p.price} Pi 购买` : '请先连接钱包'}
+                </button>
+            `;
+            switchPage('detail');
+        }
+
+        function switchPage(pageName) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(`page-${pageName}`).classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            if(pageName === 'home' || pageName === 'detail') {
+                document.getElementById('nav-home').classList.add('active');
+            } else {
+                document.getElementById(`nav-${pageName}`).classList.add('active');
+            }
+        }
+
+        // ============================================
+        // 4. 钱包与支付逻辑
+        // ============================================
         async function connectPi() {
             try {
+                document.getElementById('connectBtn').innerText = "连接中...";
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 isAuthenticated = true;
+                currentUser = auth.user.username;
 
                 document.getElementById('connectBtn').style.display = 'none';
-                const userStatus = document.getElementById('userStatus');
-                userStatus.textContent = '✅ ' + auth.user.username;
-                userStatus.style.display = 'block';
+                document.getElementById('userStatus').innerText = '✅ ' + currentUser;
+                document.getElementById('userStatus').style.display = 'block';
+                document.getElementById('profile-username').innerText = currentUser;
 
-                document.querySelectorAll('.pay-btn').forEach(btn => btn.disabled = false);
-                document.getElementById('statusMsg').textContent = '钱包已连接，可以支付';
+                const payBtn = document.getElementById('detail-pay-btn');
+                if(payBtn) {
+                    payBtn.disabled = false;
+                    payBtn.innerText = `支付 ${payBtn.innerText.split(' ')[1]} Pi 购买`;
+                }
             } catch (err) {
-                console.error("授权失败:", err);
-                document.getElementById('statusMsg').textContent = '授权失败: ' + err.message;
+                document.getElementById('connectBtn').innerText = "Connect Wallet";
+                alert("连接失败: " + err.message);
             }
         }
 
@@ -188,15 +302,17 @@
             console.log("发现未完成的支付:", payment);
         }
 
-        // 4. 发起支付（现在接收金额和商品名称两个参数）
         async function payPi(amount, itemName) {
             if (!isAuthenticated) {
                 alert("请先连接 Pi 钱包");
                 return;
             }
+            const payBtn = document.getElementById('detail-pay-btn');
+            payBtn.innerText = "处理中...";
+            payBtn.disabled = true;
 
             try {
-                const payment = await Pi.createPayment({
+                await Pi.createPayment({
                     amount: amount,
                     memo: "购买 " + itemName + " - 金额: " + amount + " Pi",
                     metadata: { item: itemName, amount: amount }
@@ -208,10 +324,11 @@
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ paymentId })
                             });
-                            if (!res.ok) throw new Error('Approval failed');
-                            document.getElementById('statusMsg').textContent = '支付已批准，等待确认...';
+                            if (!res.ok) throw new Error('后端批准失败');
                         } catch (err) {
-                            document.getElementById('statusMsg').textContent = '批准失败: ' + err.message;
+                            payBtn.innerText = "支付失败，请重试";
+                            payBtn.disabled = false;
+                            alert("批准失败: " + err.message);
                         }
                     },
                     onReadyForServerCompletion: async function(paymentId, txid) {
@@ -221,24 +338,35 @@
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({ paymentId, txid })
                             });
-                            if (!res.ok) throw new Error('Completion failed');
-                            document.getElementById('statusMsg').textContent = '✅ 支付成功！交易ID: ' + txid;
-                            alert(itemName + " 支付成功！");
+                            if (!res.ok) throw new Error('后端确认失败');
+                            alert(`${itemName} 支付成功！\n交易哈希: ${txid.substring(0,10)}...`);
+                            payBtn.innerText = "已完成支付";
                         } catch (err) {
-                            document.getElementById('statusMsg').textContent = '完成确认失败: ' + err.message;
+                            alert("确认失败: " + err.message);
+                            payBtn.innerText = "重新支付";
+                            payBtn.disabled = false;
                         }
                     },
                     onCancel: function(paymentId) {
-                        document.getElementById('statusMsg').textContent = '支付已取消';
+                        payBtn.innerText = `支付 ${amount} Pi 购买`;
+                        payBtn.disabled = false;
                     },
                     onError: function(error, payment) {
-                        document.getElementById('statusMsg').textContent = '支付错误: ' + error.message;
+                        alert("支付错误: " + error.message);
+                        payBtn.innerText = `支付 ${amount} Pi 购买`;
+                        payBtn.disabled = false;
                     }
                 });
             } catch (error) {
-                document.getElementById('statusMsg').textContent = '创建支付失败: ' + error.message;
+                alert("创建支付失败: " + error.message);
+                payBtn.innerText = `支付 ${amount} Pi 购买`;
+                payBtn.disabled = false;
             }
         }
+
+        window.addEventListener('load', () => {
+            renderProducts();
+        });
     </script>
 </body>
 </html>
