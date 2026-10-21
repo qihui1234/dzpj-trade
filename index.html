@@ -252,36 +252,42 @@
         // ============================================
         // 3. Pi 钱包与支付逻辑
         // ============================================
-              async function connectPi() {
+        async function connectPi() {
             try {
                 document.getElementById('connectBtn').innerText = "连接中...";
 
-                // 💡 核心修改：检测是否在 Pi Browser 内部运行
-                const isPiBrowser = typeof Pi !== 'undefined' && window.Pi.currentEnvironment && window.Pi.currentEnvironment().isPiBrowser;
-
-                if (!isPiBrowser) {
-                    alert("⚠️ 当前为普通浏览器。请使用手机上的 Pi Browser 打开链接，或通过开发者后台的沙盒链接进行测试。");
+                // 只要 Pi SDK 存在，就直接尝试唤起钱包
+                if (typeof Pi === 'undefined') {
+                    alert("⚠️ Pi SDK 加载失败，请刷新页面重试。");
                     document.getElementById('connectBtn').innerText = "Connect Wallet";
-                    return; // 如果不是 Pi 浏览器，直接停止执行
+                    return;
                 }
 
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 isAuthenticated = true;
                 currentUser = auth.user.username;
 
+                // 更新 UI
                 document.getElementById('connectBtn').style.display = 'none';
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
                 document.getElementById('profile-username').innerText = currentUser;
 
+                // 激活支付按钮
                 const payBtn = document.getElementById('detail-pay-btn');
                 if(payBtn) {
                     payBtn.disabled = false;
                     payBtn.innerText = payBtn.innerText.replace('请先连接钱包', '支付');
                 }
             } catch (err) {
+                console.error(err);
                 document.getElementById('connectBtn').innerText = "Connect Wallet";
-                alert("连接失败: " + err.message);
+                // 如果是在普通浏览器，点击会报错，这里给个友好提示
+                if (err.message && err.message.includes("not in Pi Browser")) {
+                    alert("⚠️ 当前为普通浏览器，请使用 Pi Browser 或沙盒链接测试。");
+                } else {
+                    alert("连接失败: " + (err.message || err));
+                }
             }
         }
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
