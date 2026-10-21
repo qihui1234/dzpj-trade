@@ -252,9 +252,19 @@
         // ============================================
         // 3. Pi 钱包与支付逻辑
         // ============================================
-        async function connectPi() {
+              async function connectPi() {
             try {
                 document.getElementById('connectBtn').innerText = "连接中...";
+
+                // 💡 核心修改：检测是否在 Pi Browser 内部运行
+                const isPiBrowser = typeof Pi !== 'undefined' && window.Pi.currentEnvironment && window.Pi.currentEnvironment().isPiBrowser;
+
+                if (!isPiBrowser) {
+                    alert("⚠️ 当前为普通浏览器。请使用手机上的 Pi Browser 打开链接，或通过开发者后台的沙盒链接进行测试。");
+                    document.getElementById('connectBtn').innerText = "Connect Wallet";
+                    return; // 如果不是 Pi 浏览器，直接停止执行
+                }
+
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 isAuthenticated = true;
                 currentUser = auth.user.username;
@@ -274,7 +284,6 @@
                 alert("连接失败: " + err.message);
             }
         }
-
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
 
         async function payPi(amount, itemName) {
