@@ -157,7 +157,7 @@
                                 ${p.sgs ? `<span class="badge badge-sgs">SGS认证</span>` : ''}
                                 ${p.halal ? `<span class="badge badge-halal">Halal认证</span>` : ''}
                             </div>
-                            <div class="card-price">${p.price} Pi / 吨</div>
+                            <div class="card-price">${p.price} Pi / ${p.category === 'spice' ? '公斤' : '盒'}</div>
                         </div>
                     </div>
                 `;
