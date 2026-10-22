@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DZPJ Trade</title>
-    <!-- Pi SDK -->
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
-    <!-- Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
@@ -22,7 +20,6 @@
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; border: 1px solid #eee; cursor: pointer; }
         .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
         
-        /* 商品卡片 (带真实图片) */
         .card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; gap: 12px; cursor: pointer; align-items: center; }
         .card-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #eee; }
         .card-info { flex: 1; }
@@ -33,7 +30,6 @@
         .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
         .badge-halal { background-color: #e8f5e9; color: #2e7d32; }
 
-        /* 详情页 */
         .back-btn { display: inline-block; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; }
         .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
         .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
@@ -42,7 +38,6 @@
         .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .pay-btn:disabled { background-color: #ccc; }
 
-        /* 我的页面与订单 */
         .profile-header { background: #d32f2f; border-radius: 12px; padding: 24px; text-align: center; color: white; margin-bottom: 20px; }
         .order-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
         .order-title { font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; }
@@ -62,7 +57,6 @@
         <button id="connectBtn" onclick="connectPi()">Connect Wallet</button>
     </header>
 
-    <!-- 首页 -->
     <div id="page-home" class="page active">
         <div class="filter-tabs">
             <div class="filter-tab active" onclick="filterCategory('all', this)">全部</div>
@@ -72,13 +66,11 @@
         <div id="product-list"><p style="text-align:center; color:#999;">加载商品中...</p></div>
     </div>
 
-    <!-- 详情页 -->
     <div id="page-detail" class="page">
         <div class="back-btn" onclick="switchPage('home')">← 返回</div>
         <div id="detail-content"></div>
     </div>
 
-    <!-- 我的页面 -->
     <div id="page-profile" class="page">
         <div class="profile-header">
             <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
@@ -108,30 +100,26 @@
     </nav>
 
     <script>
-        // ============================================
-        // 1. 配置与初始化
-        // ============================================
-        // ⚠️ 请把这里的 URL 和 KEY 换成你在 Supabase 获取到的！
         const SUPABASE_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_72-nfp11uFWf5kv6_qKViA_jp_OZA5S';
+        const SUPABASE_ANON_KEY = 'sb_publishable_72-nfp11uFWf5kv6_qKViA_jp_OZA5S'; // 如果你换了新的 key，请替换这里
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         
         Pi.init({ version: "2.0", sandbox: true });
         let isAuthenticated = false;
         let currentUser = null;
-        let allProducts = []; // 用于存储从数据库拉取的商品
+        let allProducts = [];
 
-        // ============================================
-        // 2. 数据加载与渲染
-        // ============================================
-        
-        // 从 Supabase 拉取商品
+        // 动态判断单位
+        function getUnit(category) {
+            return category === 'spice' ? '公斤' : '盒';
+        }
+
         async function fetchProducts() {
-            const { data, error } = await supabaseClient.from('products').select('*');
+            const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
             if (error) {
                 console.error("加载商品失败", error);
-                document.getElementById('product-list').innerHTML = '<p style="text-align:center; color:red;">数据库连接失败，请检查配置</p>';
+                document.getElementById('product-list').innerHTML = '<p style="text-align:center; color:red;">数据库连接失败</p>';
                 return;
             }
             allProducts = data;
@@ -150,14 +138,14 @@
             filtered.forEach(p => {
                 listEl.innerHTML += `
                     <div class="card" onclick="showDetail(${p.id})">
-                        <img src="${p.image_url}" class="card-img" alt="${p.name}">
+                        <img src="${p.image_url}" class="card-img" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                         <div class="card-info">
                             <div class="card-title">${p.name}</div>
                             <div class="badge-group">
                                 ${p.sgs ? `<span class="badge badge-sgs">SGS认证</span>` : ''}
                                 ${p.halal ? `<span class="badge badge-halal">Halal认证</span>` : ''}
                             </div>
-                            <div class="card-price">${p.price} Pi / ${p.category === 'spice' ? '公斤' : '盒'}</div>
+                            <div class="card-price">${p.price} Pi / ${getUnit(p.category)}</div>
                         </div>
                     </div>
                 `;
@@ -170,30 +158,29 @@
             renderProducts(category);
         }
 
-        // 显示详情页 (包含 Murabaha 成本拆解)
         function showDetail(id) {
             const p = allProducts.find(item => item.id === id);
             const detailEl = document.getElementById('detail-content');
-            
-            // 计算 Murabaha 利润
             const profit = (p.price - p.cost).toFixed(2);
+            const unit = getUnit(p.category);
             const mockHash = '0x' + Math.random().toString(16).substr(2, 10) + '...';
             
             detailEl.innerHTML = `
-                <img src="${p.image_url}" class="detail-img">
+                <img src="${p.image_url}" class="detail-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                 <h2 style="font-size: 22px; margin-bottom: 8px;">${p.name}</h2>
-                <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / 吨</div>
+                <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / ${unit}</div>
                 
                 <div class="detail-box">
                     <h3>Murabaha (成本加利润) 明细</h3>
                     <div class="detail-row"><span>卖家原始采购成本</span><span>${p.cost} Pi</span></div>
                     <div class="detail-row"><span>卖家合理利润加价</span><span>${profit} Pi</span></div>
                     <div class="detail-row" style="font-weight:bold; color:#d32f2f;"><span>买方最终支付总额</span><span>${p.price} Pi</span></div>
-                    <p style="font-size: 12px; color: #999; margin-top: 8px;">* 本交易无利息 (Riba)，符合伊斯兰金融原则。</p>
                 </div>
 
                 <div class="detail-box">
-                    <h3>链上溯源信息</h3>
+                    <h3>基础信息与溯源</h3>
+                    <div class="detail-row"><span>规格描述</span><span style="text-align:right; max-width:60%;">${p.description}</span></div>
+                    <div class="detail-row"><span>当前库存</span><span>${p.stock} ${unit}</span></div>
                     ${p.sgs ? `<div class="detail-row"><span>SGS证书</span><span>${p.sgs}</span></div>` : ''}
                     ${p.halal ? `<div class="detail-row"><span>Halal证书</span><span>${p.halal}</span></div>` : ''}
                     <div class="detail-row"><span>合约存证哈希</span><span style="color:#6a1b9a">${mockHash}</span></div>
@@ -206,14 +193,9 @@
             switchPage('detail');
         }
 
-        // 拉取当前用户的订单
         async function fetchOrders() {
             if (!currentUser) return;
-            const { data, error } = await supabaseClient
-                .from('orders')
-                .select('*')
-                .eq('username', currentUser)
-                .order('created_at', { ascending: false });
+            const { data, error } = await supabaseClient.from('orders').select('*').eq('username', currentUser).order('created_at', { ascending: false });
 
             const listEl = document.getElementById('order-list');
             if (error || data.length === 0) {
@@ -243,53 +225,35 @@
             
             if(pageName === 'profile') {
                 document.getElementById('nav-profile').classList.add('active');
-                fetchOrders(); // 切换到我的页面时，实时拉取订单
+                fetchOrders(); 
             } else {
                 document.getElementById('nav-home').classList.add('active');
             }
         }
 
-        // ============================================
-        // 3. Pi 钱包与支付逻辑
-        // ============================================
         async function connectPi() {
             try {
                 document.getElementById('connectBtn').innerText = "连接中...";
-
-                // 只要 Pi SDK 存在，就直接尝试唤起钱包
-                if (typeof Pi === 'undefined') {
-                    alert("⚠️ Pi SDK 加载失败，请刷新页面重试。");
-                    document.getElementById('connectBtn').innerText = "Connect Wallet";
-                    return;
-                }
-
                 const auth = await Pi.authenticate(['username', 'payments'], onIncompletePaymentFound);
                 isAuthenticated = true;
                 currentUser = auth.user.username;
 
-                // 更新 UI
                 document.getElementById('connectBtn').style.display = 'none';
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
                 document.getElementById('profile-username').innerText = currentUser;
 
-                // 激活支付按钮
                 const payBtn = document.getElementById('detail-pay-btn');
                 if(payBtn) {
                     payBtn.disabled = false;
                     payBtn.innerText = payBtn.innerText.replace('请先连接钱包', '支付');
                 }
             } catch (err) {
-                console.error(err);
                 document.getElementById('connectBtn').innerText = "Connect Wallet";
-                // 如果是在普通浏览器，点击会报错，这里给个友好提示
-                if (err.message && err.message.includes("not in Pi Browser")) {
-                    alert("⚠️ 当前为普通浏览器，请使用 Pi Browser 或沙盒链接测试。");
-                } else {
-                    alert("连接失败: " + (err.message || err));
-                }
+                alert("连接失败: " + (err.message || err));
             }
         }
+
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
 
         async function payPi(amount, itemName) {
@@ -313,7 +277,6 @@
                         if (!res.ok) { alert("批准失败"); payBtn.disabled = false; }
                     },
                     onReadyForServerCompletion: async function(paymentId, txid) {
-                        // 1. 通知后端完成支付（后端会防刷单校验）
                         const res = await fetch('/api/complete', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -321,12 +284,9 @@
                         });
 
                         if (res.ok) {
-                            // 2. 写入 Supabase 数据库
-                            const { error } = await supabaseClient.from('orders').insert([
+                            await supabaseClient.from('orders').insert([
                                 { username: currentUser, item_name: itemName, amount: amount, txid: txid }
                             ]);
-                            if (error) console.error("订单写入数据库失败", error);
-                            
                             alert(`${itemName} 支付成功！已生成订单。`);
                             payBtn.innerText = "已完成支付";
                         } else {
@@ -349,10 +309,7 @@
             }
         }
 
-        // 初始化
-        window.addEventListener('load', () => {
-            fetchProducts();
-        });
+        window.addEventListener('load', () => { fetchProducts(); });
     </script>
 </body>
 </html>
