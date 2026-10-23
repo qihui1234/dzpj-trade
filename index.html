@@ -121,7 +121,7 @@
 
     <div id="page-home" class="page active">
         <!-- 信任背书横幅 -->
-        <div class="trust-banner" onclick="viewCert('https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800')">
+        <div class="trust-banner" onclick="viewCert('https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png')">
             <div class="trust-banner-left">
                 <div class="trust-icon">🛡️</div>
                 <div class="trust-text">
@@ -238,8 +238,9 @@
         let addressInfo = JSON.parse(localStorage.getItem('dzpj_address_info')) || { name: '', code: '+86', phone: '', address: '' };
 
         // ⚠️ 替换为你上传到 Supabase Storage 的真实证书图片链接！
-        const SGS_CERT_URL = 'https://images.unsplash.com/photo-1589330694653-ded6df03f754?w=800';
-        const HALAL_CERT_URL = 'https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?w=800';
+        // 注意：因为有些链接带括号，浏览器可能会报错，请确保在 Supabase 里文件名为纯英文/数字
+        const SGS_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng%20(1).png';
+        const HALAL_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png';
 
         const dict = {
             zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)" },
