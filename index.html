@@ -30,6 +30,11 @@
         .trust-text p { font-size: 11px; color: #666; }
         .trust-btn { background: #1565c0; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
 
+        /* 搜索框 */
+        .search-container { background: #fff; border-radius: 20px; padding: 8px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .search-icon { color: #999; margin-right: 8px; font-size: 16px; }
+        .search-container input { border: none; outline: none; flex: 1; font-size: 14px; background: transparent; }
+
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; }
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; border: 1px solid #eee; cursor: pointer; white-space: nowrap; }
         .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
@@ -130,6 +135,12 @@
                 </div>
             </div>
             <button class="trust-btn" data-i18n="view_cert">查看</button>
+        </div>
+
+        <!-- 搜索框 -->
+        <div class="search-container">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜索商品..." data-i18n-placeholder="search_placeholder">
         </div>
 
         <div class="filter-tabs">
@@ -234,20 +245,22 @@
         let allProducts = [];
         let currentLang = 'zh';
         
+        // 搜索与分类状态
+        let currentSearchQuery = '';
+        let currentCategory = 'all';
+
         let cart = []; 
         let addressInfo = JSON.parse(localStorage.getItem('dzpj_address_info')) || { name: '', code: '+86', phone: '', address: '' };
 
-        // ⚠️ 替换为你上传到 Supabase Storage 的真实证书图片链接！
-        // 注意：因为有些链接带括号，浏览器可能会报错，请确保在 Supabase 里文件名为纯英文/数字
         const SGS_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng%20(1).png';
         const HALAL_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png';
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)" },
-            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)" },
-            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)" }
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات" },
+            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos" },
+            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé" }
         };
 
         function detectLanguage() {
@@ -263,7 +276,11 @@
                 const key = el.getAttribute('data-i18n');
                 if(dict[lang][key]) el.innerText = dict[lang][key];
             });
-            renderProducts('all');
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if(dict[lang][key]) el.setAttribute('placeholder', dict[lang][key]);
+            });
+            renderFilteredProducts();
             renderCart();
         }
 
@@ -285,14 +302,32 @@
 
         async function fetchProducts() {
             const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
-            if (!error) { allProducts = data; renderProducts('all'); renderCart(); }
+            if (!error) { allProducts = data; renderFilteredProducts(); renderCart(); }
         }
 
-        function renderProducts(filter) {
+        // 统一处理搜索与分类的核心函数
+        function renderFilteredProducts() {
             const listEl = document.getElementById('product-list');
             listEl.innerHTML = '';
-            let filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
             
+            // 1. 先按分类过滤
+            let filtered = currentCategory === 'all' ? allProducts : allProducts.filter(p => p.category === currentCategory);
+            
+            // 2. 再按搜索词过滤（多语言模糊匹配）
+            if (currentSearchQuery.trim() !== '') {
+                const query = currentSearchQuery.trim().toLowerCase();
+                filtered = filtered.filter(p => {
+                    // 检查所有语言的名称是否包含搜索词
+                    const names = [p.name, p.name_en, p.name_ar, p.name_es, p.name_fr].filter(Boolean);
+                    return names.some(n => n.toLowerCase().includes(query));
+                });
+            }
+            
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<p style="text-align:center; color:#999; margin-top:20px;">${dict[currentLang].no_search_result}</p>`;
+                return;
+            }
+
             filtered.forEach(p => {
                 listEl.innerHTML += `
                     <div class="card" onclick="showDetail(${p.id})">
@@ -306,10 +341,17 @@
             });
         }
 
+        // 监听搜索框输入
+        function handleSearch() {
+            currentSearchQuery = document.getElementById('search-input').value;
+            renderFilteredProducts();
+        }
+
         function filterCategory(category, el) {
             document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
             el.classList.add('active');
-            renderProducts(category);
+            currentCategory = category;
+            renderFilteredProducts();
         }
 
         // 打开全屏图片
