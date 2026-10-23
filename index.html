@@ -15,11 +15,14 @@
         .lang-selector { background: #eee; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; margin-left: 10px; }
         #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
+        
         .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
         .page.active { display: block; }
+        
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; }
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; border: 1px solid #eee; cursor: pointer; white-space: nowrap; }
         .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
+        
         .card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; gap: 12px; cursor: pointer; align-items: center; }
         .card-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
         .card-info { flex: 1; }
@@ -29,18 +32,29 @@
         .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; }
         .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
         .badge-halal { background-color: #e8f5e9; color: #2e7d32; }
+
         .back-btn { display: inline-block; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; }
         .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
         .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
         .detail-box h3 { font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
-        .detail-row { display: flex; justify-content: space-between; font-size: 14px; color: #666; margin-bottom: 8px; }
         .detail-desc { font-size: 13px; color: #555; line-height: 1.6; margin-top: 10px; background: #fafafa; padding: 10px; border-radius: 8px; }
+        
         .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .pay-btn:disabled { background-color: #ccc; }
+
+        /* 购物车列表 */
+        .cart-item { display: flex; justify-content: space-between; align-items: center; background: #fff; padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .cart-item-info { flex: 1; }
+        .qty-controls { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { width: 26px; height: 26px; background: #eee; border: none; border-radius: 50%; font-size: 16px; cursor: pointer; }
+        
         .profile-header { background: #d32f2f; border-radius: 12px; padding: 24px; text-align: center; color: white; margin-bottom: 20px; }
+        .address-input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; margin-top: 8px; font-size: 14px; }
         .order-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
         .order-title { font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; }
         .order-tx { font-size: 12px; color: #888; margin-top: 6px; word-break: break-all; }
+        .order-status { display: inline-block; background: #fff3e0; color: #e65100; padding: 2px 8px; border-radius: 4px; font-size: 12px; margin-top: 6px; }
+
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; text-align: center; padding: 12px 0; font-size: 12px; color: #999; cursor: pointer; }
         .nav-item.active { color: #d32f2f; font-weight: 600; }
@@ -62,40 +76,60 @@
         <button id="connectBtn" onclick="connectPi()" data-i18n="connect">Connect Wallet</button>
     </header>
 
+    <!-- 首页 -->
     <div id="page-home" class="page active">
         <div class="filter-tabs">
             <div class="filter-tab active" onclick="filterCategory('all', this)" data-i18n="all">全部</div>
             <div class="filter-tab" onclick="filterCategory('spice', this)" data-i18n="spices">香料</div>
             <div class="filter-tab" onclick="filterCategory('halal', this)" data-i18n="halal">清真食品</div>
         </div>
-        <div id="product-list"><p style="text-align:center; color:#999;" data-i18n="loading">加载中...</p></div>
+        <div id="product-list"></div>
     </div>
 
+    <!-- 详情页 -->
     <div id="page-detail" class="page">
         <div class="back-btn" onclick="switchPage('home')" data-i18n="back">← 返回</div>
         <div id="detail-content"></div>
     </div>
 
+    <!-- 购物车页 -->
+    <div id="page-cart" class="page">
+        <h2 style="font-size: 20px; margin-bottom: 16px;" data-i18n="cart">购物车</h2>
+        <div id="cart-list"></div>
+        <div id="cart-summary" style="display: none; background: #fff; padding: 16px; border-radius: 12px; margin-top: 16px;">
+            <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 18px; margin-bottom: 16px;">
+                <span data-i18n="total">总计:</span>
+                <span style="color: #d32f2f;" id="cart-total-price">0</span>
+            </div>
+            <button class="pay-btn" onclick="checkoutCart()" data-i18n="checkout">去结算</button>
+        </div>
+    </div>
+
+    <!-- 我的页面 -->
     <div id="page-profile" class="page">
         <div class="profile-header">
             <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
             <h2 id="profile-username" style="font-size: 18px;" data-i18n="not_connected">未连接钱包</h2>
         </div>
+        
         <div class="detail-box">
-            <h3 data-i18n="trust_title">信任背书与合规</h3>
-            <div class="detail-row"><span data-i18n="trust_kyb">📜 平台资质</span><span data-i18n="trust_kyb_val">已通过 KYB 认证 (演示)</span></div>
-            <div class="detail-row"><span data-i18n="trust_murabaha">⚖️ 交易合规</span><span data-i18n="trust_murabaha_val">Murabaha 伊斯兰金融原则</span></div>
-            <div class="detail-row"><span data-i18n="trust_custody">🔒 资产托管</span><span data-i18n="trust_custody_val">第三方监管仓储证明</span></div>
+            <h3 data-i18n="address_title">收货地址管理</h3>
+            <input type="text" class="address-input" id="user-address" placeholder="请输入详细收货地址" onchange="saveAddress(this.value)">
         </div>
+
         <div class="detail-box">
             <h3 data-i18n="orders_title">我的订单</h3>
-            <div id="order-list"><p style="font-size: 13px; color: #999; text-align: center;" data-i18n="loading">加载中...</p></div>
+            <div id="order-list"></div>
         </div>
     </div>
 
+    <!-- 底部导航 -->
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
             <span class="nav-icon">🏠</span><span data-i18n="home">首页</span>
+        </div>
+        <div class="nav-item" id="nav-cart" onclick="switchPage('cart')">
+            <span class="nav-icon">🛒</span><span data-i18n="cart">购物车</span>
         </div>
         <div class="nav-item" id="nav-profile" onclick="switchPage('profile')">
             <span class="nav-icon">👤</span><span data-i18n="profile">我的</span>
@@ -112,11 +146,16 @@
         let currentUser = null;
         let allProducts = [];
         let currentLang = 'zh';
+        
+        // 购物车状态，从本地读取
+        let cart = JSON.parse(localStorage.getItem('dzpj_cart')) || [];
+        // 地址状态
+        let userAddress = localStorage.getItem('dzpj_address') || '';
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", loading: "加载中...", back: "← 返回", not_connected: "未连接钱包", home: "首页", profile: "我的", orders_title: "我的订单", trust_title: "信任背书与合规", trust_kyb: "📜 平台资质", trust_kyb_val: "已通过 KYB 认证", trust_murabaha: "⚖️ 交易合规", trust_murabaha_val: "Murabaha 原则", trust_custody: "🔒 资产托管", trust_custody_val: "第三方仓储证明", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", no_orders: "暂无订单记录", pay: "支付", buy: "购买" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", loading: "Loading...", back: "← Back", not_connected: "Not Connected", home: "Home", profile: "Profile", orders_title: "My Orders", trust_title: "Trust & Compliance", trust_kyb: "📜 Platform", trust_kyb_val: "KYB Verified", trust_murabaha: "⚖️ Compliance", trust_murabaha_val: "Murabaha Principle", trust_custody: "🔒 Custody", trust_custody_val: "Third-party Custody", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", no_orders: "No orders found", pay: "Pay", buy: "Buy" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", loading: "جاري التحميل...", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", profile: "حسابي", orders_title: "طلباتي", trust_title: "الثقة والامتثال", trust_kyb: "📜 المنصة", trust_kyb_val: "معتمد KYB", trust_murabaha: "⚖️ الامتثال", trust_murabaha_val: "مبدأ المرابحة", trust_custody: "🔒 الحفظ", trust_custody_val: "حفظ طرف ثالث", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", no_orders: "لا توجد طلبات", pay: "دفع", buy: "شراء" }
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", loading: "加载中...", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单", address_title: "收货地址管理", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", loading: "Loading...", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", loading: "جاري التحميل...", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "إدارة العنوان", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ" }
         };
 
         function changeLanguage(lang) {
@@ -126,6 +165,7 @@
                 if(dict[lang][key]) el.innerText = dict[lang][key];
             });
             renderProducts('all');
+            renderCart();
         }
 
         function getUnit(category) {
@@ -134,28 +174,21 @@
             return category === 'spice' ? 'kg' : 'box';
         }
 
-        // 核心：自动回退读取逻辑（防止因为翻译没填全导致白屏）
         function getTrans(p, field) {
             const langField = `${field}_${currentLang}`;
             if (currentLang === 'zh') return p[field] || '';
             return p[langField] || p[field] || ''; 
         }
 
-        function getProductName(p) {
-            return getTrans(p, 'name');
-        }
+        function getProductName(p) { return getTrans(p, 'name'); }
 
+        // --- 数据获取与渲染 ---
         async function fetchProducts() {
             const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
             if (!error) { allProducts = data; renderProducts('all'); }
         }
 
         function renderProducts(filter) {
-            document.querySelectorAll('.filter-tab').forEach(t => {
-                t.classList.remove('active');
-                if(t.getAttribute('onclick')?.includes(filter)) t.classList.add('active');
-            });
-
             const listEl = document.getElementById('product-list');
             listEl.innerHTML = '';
             let filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
@@ -166,10 +199,6 @@
                         <img src="${p.image_url}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                         <div class="card-info">
                             <div class="card-title">${getProductName(p)}</div>
-                            <div class="badge-group">
-                                ${p.sgs ? `<span class="badge badge-sgs">SGS</span>` : ''}
-                                ${p.halal ? `<span class="badge badge-halal">Halal</span>` : ''}
-                            </div>
                             <div class="card-price">${p.price} Pi / ${getUnit(p.category)}</div>
                         </div>
                     </div>
@@ -212,18 +241,117 @@
                 <img src="${p.image_url}" class="detail-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                 <h2 style="font-size: 22px; margin-bottom: 8px;">${getProductName(p)}</h2>
                 <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / ${unit}</div>
-                
-                <div class="detail-box">
-                    <h3>Murabaha</h3>
-                    <div class="detail-row"><span>Cost</span><span>${p.cost} Pi</span></div>
-                    <div class="detail-row" style="font-weight:bold; color:#d32f2f;"><span>Total</span><span>${p.price} Pi</span></div>
-                </div>
                 ${detailHtml}
-                <button class="pay-btn" id="detail-pay-btn" onclick="payPi(${p.price}, '${getProductName(p)}')" ${isAuthenticated ? '' : 'disabled'} data-amount="${p.price}">
-                    ${isAuthenticated ? `${dictLang.pay} ${p.price} Pi` : dictLang.connect}
-                </button>
+                <button class="pay-btn" onclick="addToCart(${p.id})" data-i18n="add_cart">加入购物车</button>
             `;
             switchPage('detail');
+        }
+
+        // --- 购物车逻辑 ---
+        function addToCart(id) {
+            const p = allProducts.find(item => item.id === id);
+            const existing = cart.find(item => item.id === id);
+            if(existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ id: p.id, name: getProductName(p), price: p.price, qty: 1, category: p.category });
+            }
+            saveCart();
+            alert(dict[currentLang].add_cart + " Success!");
+        }
+
+        function saveCart() {
+            localStorage.setItem('dzpj_cart', JSON.stringify(cart));
+            renderCart();
+        }
+
+        function renderCart() {
+            const listEl = document.getElementById('cart-list');
+            const summaryEl = document.getElementById('cart-summary');
+            const totalEl = document.getElementById('cart-total-price');
+            
+            if(cart.length === 0) {
+                listEl.innerHTML = `<p style="text-align:center; color:#999; margin-top:20px;">${dict[currentLang].empty_cart}</p>`;
+                summaryEl.style.display = 'none';
+                return;
+            }
+            
+            listEl.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price * item.qty;
+                listEl.innerHTML += `
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div style="font-weight:bold;">${item.name}</div>
+                            <div style="color:#d32f2f; font-size:14px; margin-top:4px;">${item.price} Pi / ${getUnit(item.category)}</div>
+                        </div>
+                        <div class="qty-controls">
+                            <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+            });
+            totalEl.innerText = total.toFixed(1) + " Pi";
+            summaryEl.style.display = 'block';
+        }
+
+        function updateQty(index, change) {
+            cart[index].qty += change;
+            if(cart[index].qty <= 0) cart.splice(index, 1);
+            saveCart();
+        }
+
+        // --- 结算逻辑 ---
+        async function checkoutCart() {
+            if (!isAuthenticated) { alert("请先连接钱包"); return; }
+            if (!userAddress) { alert("请先去【我的】页面填写收货地址"); switchPage('profile'); return; }
+            if (cart.length === 0) return;
+
+            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            const itemNames = cart.map(i => `${i.name}x${i.qty}`).join(', ');
+
+            try {
+                await Pi.createPayment({
+                    amount: totalAmount,
+                    memo: "购物车结算: " + itemNames,
+                    metadata: { items: cart, address: userAddress }
+                }, {
+                    onReadyForServerApproval: async (paymentId) => {
+                        await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId }) });
+                    },
+                    onReadyForServerCompletion: async function(paymentId, txid) {
+                        const res = await fetch('/api/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId, txid }) });
+                        if (res.ok) {
+                            // 写入数据库，这里为了简单，把购物车所有商品拼成一条订单记录存入
+                            await supabaseClient.from('orders').insert([{ 
+                                username: currentUser, 
+                                item_name: itemNames, 
+                                amount: totalAmount, 
+                                txid: txid,
+                                address: userAddress,
+                                status: '待发货'
+                            }]);
+                            alert(`支付成功！已生成订单。`);
+                            cart = [];
+                            saveCart();
+                            switchPage('home');
+                        } else {
+                            alert("防刷单校验失败！");
+                        }
+                    },
+                    onCancel: function() { alert("支付取消"); },
+                    onError: function(error) { alert("支付错误"); }
+                });
+            } catch (error) { alert("创建支付失败"); }
+        }
+
+        // --- 地址与我的 ---
+        function saveAddress(val) {
+            userAddress = val;
+            localStorage.setItem('dzpj_address', val);
         }
 
         async function fetchOrders() {
@@ -242,7 +370,9 @@
                             <span>${order.item_name}</span>
                             <span style="color:#d32f2f;">${order.amount} Pi</span>
                         </div>
+                        <div class="order-tx">地址: ${order.address || '未填写'}</div>
                         <div class="order-tx">TxID: ${order.txid}</div>
+                        <div class="order-status">${order.status || '待发货'}</div>
                     </div>
                 `;
             });
@@ -252,11 +382,13 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageName}`).classList.add('active');
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(`nav-${pageName}`).classList.add('active');
+            
             if(pageName === 'profile') {
-                document.getElementById('nav-profile').classList.add('active');
+                document.getElementById('user-address').value = userAddress;
                 fetchOrders(); 
-            } else {
-                document.getElementById('nav-home').classList.add('active');
+            } else if(pageName === 'cart') {
+                renderCart();
             }
         }
 
@@ -270,8 +402,6 @@
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
                 document.getElementById('profile-username').innerText = currentUser;
-                const payBtn = document.getElementById('detail-pay-btn');
-                if(payBtn) { payBtn.disabled = false; payBtn.innerText = `${dict[currentLang].pay} ${payBtn.getAttribute('data-amount')} Pi`; }
             } catch (err) {
                 document.getElementById('connectBtn').innerText = dict[currentLang].connect;
                 alert("连接失败: " + (err.message || err));
@@ -280,38 +410,7 @@
 
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
 
-        async function payPi(amount, itemName) {
-            if (!isAuthenticated) return;
-            const payBtn = document.getElementById('detail-pay-btn');
-            payBtn.innerText = "处理中...";
-            payBtn.disabled = true;
-
-            try {
-                await Pi.createPayment({
-                    amount: amount,
-                    memo: "购买 " + itemName + " - 金额: " + amount + " Pi",
-                    metadata: { item: itemName, amount: amount }
-                }, {
-                    onReadyForServerApproval: async (paymentId) => {
-                        await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId }) });
-                    },
-                    onReadyForServerCompletion: async function(paymentId, txid) {
-                        const res = await fetch('/api/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId, txid }) });
-                        if (res.ok) {
-                            await supabaseClient.from('orders').insert([{ username: currentUser, item_name: itemName, amount: amount, txid: txid }]);
-                            alert(`支付成功！已生成订单。`);
-                            payBtn.innerText = "已完成";
-                        } else {
-                            alert("防刷单校验失败！"); payBtn.disabled = false;
-                        }
-                    },
-                    onCancel: function() { payBtn.innerText = `${dict[currentLang].pay} ${amount} Pi`; payBtn.disabled = false; },
-                    onError: function(error) { alert("支付错误"); payBtn.disabled = false; }
-                });
-            } catch (error) { alert("创建支付失败"); payBtn.disabled = false; }
-        }
-
-        window.addEventListener('load', () => { fetchProducts(); });
+        window.addEventListener('load', () => { fetchProducts(); renderCart(); });
     </script>
 </body>
 </html>
