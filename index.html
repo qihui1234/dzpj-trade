@@ -54,7 +54,6 @@
         .phone-group input:last-child { flex: 1; }
 
         .order-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; cursor: pointer; }
-        .order-card:hover { border-color: #d32f2f; }
         .order-title { font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; }
         .order-info { font-size: 12px; color: #888; margin-top: 6px; }
         .order-status-tag { display: inline-block; background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-top: 10px; font-weight: bold; border: 1px solid #ffe0b2;}
@@ -63,13 +62,11 @@
         .modal-overlay.active { display: flex; }
         .modal-content { background: #f8f9fa; width: 100%; max-width: 480px; border-radius: 16px 16px 0 0; padding: 24px; max-height: 85vh; overflow-y: auto; }
         
-        /* 物流弹窗头部信息 */
         .logistics-header { background: #fff; padding: 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .logistics-header h3 { font-size: 16px; margin-bottom: 10px; color: #d32f2f; }
         .logistics-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
         .logistics-row span:last-child { font-weight: 500; color: #333; }
 
-        /* 物流时间轴 */
         .timeline { border-left: 2px solid #e0e0e0; margin-left: 10px; padding-left: 20px; background: #fff; padding: 20px; border-radius: 12px; }
         .timeline-item { position: relative; margin-bottom: 20px; }
         .timeline-item:last-child { margin-bottom: 0; }
@@ -77,7 +74,6 @@
         .timeline-item.active .timeline-dot { background: #d32f2f; box-shadow: 0 0 0 4px #ffebee; }
         .timeline-item.active .timeline-title { color: #d32f2f; font-weight: bold; }
         .timeline-title { font-size: 14px; margin-bottom: 4px; color: #999; }
-        .timeline-location { font-size: 13px; color: #333; margin-bottom: 2px; font-weight: 500; }
         .timeline-time { font-size: 12px; color: #aaa; }
         .close-btn { width: 100%; padding: 14px; background: #fff; border: 1px solid #eee; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
 
@@ -154,7 +150,7 @@
         </div>
 
         <div class="detail-box">
-            <h3 data-i18n="orders_title">我的订单</h3>
+            <h3 data-i18n="orders_title">我的订单 (消费记录)</h3>
             <p style="font-size: 12px; color: #999; margin-bottom: 10px;" data-i18n="click_order_hint">👉 点击订单卡片可查看物流动态</p>
             <div id="order-list"></div>
         </div>
@@ -172,9 +168,7 @@
                 <div class="logistics-row"><span data-i18n="estimated_delivery">预计送达</span><span id="modal-est-time" style="color:#d32f2f; font-weight:bold;">3-5 Days</span></div>
             </div>
 
-            <div class="timeline" id="timeline-container">
-                <!-- 时间轴由 JS 动态生成 -->
-            </div>
+            <div class="timeline" id="timeline-container"></div>
             <button class="close-btn" onclick="closeLogistics()" data-i18n="close">关闭</button>
         </div>
     </div>
@@ -202,17 +196,18 @@
         let allProducts = [];
         let currentLang = 'zh';
         
-        let cart = JSON.parse(localStorage.getItem('dzpj_cart')) || [];
+        // 购物车只存 { id, qty }
+        let cart = []; 
         let addressInfo = JSON.parse(localStorage.getItem('dzpj_address_info')) || { name: '', code: '+86', phone: '', address: '' };
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货",
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货",
                 log_created: "买家已付款，订单生成成功", log_processing: "商家已备货，等待揽收", log_picked: "【中国德州集散中心】已揽收", log_transit: "【上海国际转运中心】已发出，发往目的国", log_customs: "快件已到达目的国海关，正在清关中", log_delivery: "【派送中】快递员正在派送，请保持电话畅通", log_signed: "已签收，感谢您的购买" },
             
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", close: "Close", status_shipped: "In Transit", status_pending: "Pending",
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders (History)", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", close: "Close", status_shipped: "In Transit", status_pending: "Pending",
                 log_created: "Buyer paid, order generated", log_processing: "Merchant processing, awaiting pickup", log_picked: "Picked up at [Dezhou Distribution Center, China]", log_transit: "Departed from [Shanghai International Transit Center]", log_customs: "Arrived at destination customs, clearing", log_delivery: "[Out for Delivery] Courier is delivering", log_signed: "Delivered, thank you" },
             
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار",
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي (السجل)", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار",
                 log_created: "دفع المشتري، تم إنشاء الطلب", log_processing: "التاجر يعالج، في انتظار الاستلام", log_picked: "تم الاستلام في [مركز توزيع دتشو، الصين]", log_transit: "غادر من [مركز شنغهاي الدولي]", log_customs: "وصل إلى جمارك الوجهة، جاري التخليص", log_delivery: "[قيد التوصيل] المندوب في الطريق", log_signed: "تم التوصيل، شكراً لك" }
         };
 
@@ -223,7 +218,7 @@
                 if(dict[lang][key]) el.innerText = dict[lang][key];
             });
             renderProducts('all');
-            renderCart();
+            renderCart(); // 语言切换时重新渲染购物车
         }
 
         function getUnit(category) {
@@ -242,7 +237,12 @@
 
         async function fetchProducts() {
             const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
-            if (!error) { allProducts = data; renderProducts('all'); }
+            if (!error) { 
+                allProducts = data; 
+                renderProducts('all'); 
+                // 页面加载时，如果有本地临时购物车，先渲染出来（其实如果登录了会覆盖）
+                renderCart();
+            }
         }
 
         function renderProducts(filter) {
@@ -304,19 +304,43 @@
             switchPage('detail');
         }
 
-        function addToCart(id) {
-            const p = allProducts.find(item => item.id === id);
+        // --- 购物车云端同步逻辑 ---
+        async function addToCart(id) {
+            if(!currentUser) { alert("请先连接钱包"); return; }
+            
             const existing = cart.find(item => item.id === id);
             if(existing) { existing.qty += 1; } else {
-                cart.push({ id: p.id, name: getProductName(p), price: p.price, qty: 1, category: p.category });
+                cart.push({ id: id, qty: 1 });
             }
-            saveCart();
+            
+            await syncCartToCloud(); // 每次加购直接同步云端
             alert(dict[currentLang].add_cart + " Success!");
         }
 
-        function saveCart() {
-            localStorage.setItem('dzpj_cart', JSON.stringify(cart));
+        async function syncCartToCloud() {
+            if (!currentUser) return;
+            
+            // 策略：全删全插（最简单粗暴且不出错）
+            await supabaseClient.from('carts').delete().eq('username', currentUser);
+            
+            if (cart.length > 0) {
+                const insertData = cart.map(item => ({
+                    username: currentUser,
+                    product_id: item.id,
+                    qty: item.qty
+                }));
+                await supabaseClient.from('carts').insert(insertData);
+            }
             renderCart();
+        }
+
+        async function loadCartFromCloud() {
+            if (!currentUser) return;
+            const { data, error } = await supabaseClient.from('carts').select('*').eq('username', currentUser);
+            if (!error && data) {
+                cart = data.map(item => ({ id: item.product_id, qty: item.qty }));
+                renderCart();
+            }
         }
 
         function renderCart() {
@@ -333,12 +357,15 @@
             listEl.innerHTML = '';
             let total = 0;
             cart.forEach((item, index) => {
-                total += item.price * item.qty;
+                const p = allProducts.find(prod => prod.id === item.id);
+                if (!p) return;
+                
+                total += p.price * item.qty;
                 listEl.innerHTML += `
                     <div class="cart-item">
                         <div class="cart-item-info">
-                            <div style="font-weight:bold;">${item.name}</div>
-                            <div style="color:#d32f2f; font-size:14px; margin-top:4px;">${item.price} Pi / ${getUnit(item.category)}</div>
+                            <div style="font-weight:bold;">${getProductName(p)}</div>
+                            <div style="color:#d32f2f; font-size:14px; margin-top:4px;">${p.price} Pi / ${getUnit(p.category)}</div>
                         </div>
                         <div class="qty-controls">
                             <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
@@ -352,10 +379,10 @@
             summaryEl.style.display = 'block';
         }
 
-        function updateQty(index, change) {
+        async function updateQty(index, change) {
             cart[index].qty += change;
             if(cart[index].qty <= 0) cart.splice(index, 1);
-            saveCart();
+            await syncCartToCloud(); 
         }
 
         function saveAddressInfo() {
@@ -377,14 +404,21 @@
             }
             if (cart.length === 0) return;
 
-            const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            const itemNames = cart.map(i => `${i.name}x${i.qty}`).join(', ');
+            let totalAmount = 0;
+            let itemNames = [];
+            cart.forEach(item => {
+                const p = allProducts.find(prod => prod.id === item.id);
+                if(p) {
+                    totalAmount += p.price * item.qty;
+                    itemNames.push(`${getProductName(p)}x${item.qty}`);
+                }
+            });
 
             try {
                 await Pi.createPayment({
                     amount: totalAmount,
-                    memo: "购物车结算: " + itemNames,
-                    metadata: { items: cart, addressInfo: addressInfo }
+                    memo: "购物车结算: " + itemNames.join(', '),
+                    metadata: { cart: cart, addressInfo: addressInfo }
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
                         await fetch('/api/approve', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId }) });
@@ -394,7 +428,7 @@
                         if (res.ok) {
                             await supabaseClient.from('orders').insert([{ 
                                 username: currentUser, 
-                                item_name: itemNames, 
+                                item_name: itemNames.join(', '), 
                                 amount: totalAmount, 
                                 txid: txid,
                                 address: addressInfo.address,
@@ -405,7 +439,7 @@
                             }]);
                             alert(`支付成功！已生成订单。`);
                             cart = [];
-                            saveCart();
+                            await syncCartToCloud();
                             switchPage('home');
                         } else {
                             alert("防刷单校验失败！");
@@ -444,7 +478,6 @@
             });
         }
 
-        // --- 物流弹窗逻辑（智能推算物流轨迹） ---
         function showLogistics(index) {
             const order = window.userOrders[index];
             const modal = document.getElementById('logistics-modal');
@@ -452,24 +485,17 @@
             const dictLang = dict[currentLang];
 
             const orderTime = new Date(order.created_at);
-            
-            // 格式化时间
             const formatTime = (date) => {
                 return `${date.getMonth()+1}月${date.getDate()}日 ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
             };
-
-            // 生成预计送达时间（支付时间 + 5天）
             const estDeliveryDate = new Date(orderTime);
             estDeliveryDate.setDate(estDeliveryDate.getDate() + 5);
             const estDeliveryStr = `${estDeliveryDate.getMonth()+1}月${estDeliveryDate.getDate()}日`;
 
-            // 填充头部信息
             document.getElementById('modal-status-title').innerText = dictLang.status_shipped;
             document.getElementById('modal-est-time').innerText = estDeliveryStr;
             document.getElementById('modal-track-no').innerText = "SF" + Math.floor(Math.random() * 10000000000);
 
-            // 生成物流轨迹（模拟 3 天前的订单已经走到国际转运中心）
-            // 这里我们写死几条轨迹来演示效果
             const logData = [
                 { time: new Date(orderTime.getTime() + 1000 * 60 * 60 * 24 * 2), title: dictLang.log_transit, active: true },
                 { time: new Date(orderTime.getTime() + 1000 * 60 * 60 * 24 * 1.5), title: dictLang.log_picked, active: true },
@@ -523,6 +549,9 @@
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
                 document.getElementById('profile-username').innerText = currentUser;
+                
+                // 关键：登录成功后，拉取云端购物车
+                await loadCartFromCloud();
             } catch (err) {
                 document.getElementById('connectBtn').innerText = dict[currentLang].connect;
                 alert("连接失败: " + (err.message || err));
@@ -531,7 +560,7 @@
 
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
 
-        window.addEventListener('load', () => { fetchProducts(); renderCart(); });
+        window.addEventListener('load', () => { fetchProducts(); });
     </script>
 </body>
 </html>
