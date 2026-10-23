@@ -12,10 +12,7 @@
         header { background: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
-        
-        /* 语言切换按钮 */
-        .lang-selector { background: #eee; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; cursor: pointer; margin-left: 10px; }
-        
+        .lang-selector { background: #eee; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; margin-left: 10px; }
         #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
         .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
@@ -23,9 +20,8 @@
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; }
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; border: 1px solid #eee; cursor: pointer; white-space: nowrap; }
         .filter-tab.active { background: #d32f2f; color: #fff; border-color: #d32f2f; }
-        
         .card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; gap: 12px; cursor: pointer; align-items: center; }
-        .card-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; background: #eee; }
+        .card-img { width: 80px; height: 80px; border-radius: 8px; object-fit: cover; }
         .card-info { flex: 1; }
         .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .card-price { color: #d32f2f; font-size: 16px; font-weight: 700; margin-top: 6px; }
@@ -33,7 +29,6 @@
         .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; }
         .badge-sgs { background-color: #e3f2fd; color: #1565c0; }
         .badge-halal { background-color: #e8f5e9; color: #2e7d32; }
-
         .back-btn { display: inline-block; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; }
         .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
         .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
@@ -42,12 +37,10 @@
         .detail-desc { font-size: 13px; color: #555; line-height: 1.6; margin-top: 10px; background: #fafafa; padding: 10px; border-radius: 8px; }
         .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
         .pay-btn:disabled { background-color: #ccc; }
-
         .profile-header { background: #d32f2f; border-radius: 12px; padding: 24px; text-align: center; color: white; margin-bottom: 20px; }
         .order-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; }
         .order-title { font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; }
         .order-tx { font-size: 12px; color: #888; margin-top: 6px; word-break: break-all; }
-
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #fff; display: flex; border-top: 1px solid #eee; z-index: 100; padding-bottom: env(safe-area-inset-bottom); }
         .nav-item { flex: 1; text-align: center; padding: 12px 0; font-size: 12px; color: #999; cursor: pointer; }
         .nav-item.active { color: #d32f2f; font-weight: 600; }
@@ -88,14 +81,12 @@
             <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
             <h2 id="profile-username" style="font-size: 18px;" data-i18n="not_connected">未连接钱包</h2>
         </div>
-        
         <div class="detail-box">
             <h3 data-i18n="trust_title">信任背书与合规</h3>
             <div class="detail-row"><span data-i18n="trust_kyb">📜 平台资质</span><span data-i18n="trust_kyb_val">已通过 KYB 认证 (演示)</span></div>
             <div class="detail-row"><span data-i18n="trust_murabaha">⚖️ 交易合规</span><span data-i18n="trust_murabaha_val">Murabaha 伊斯兰金融原则</span></div>
             <div class="detail-row"><span data-i18n="trust_custody">🔒 资产托管</span><span data-i18n="trust_custody_val">第三方监管仓储证明</span></div>
         </div>
-
         <div class="detail-box">
             <h3 data-i18n="orders_title">我的订单</h3>
             <div id="order-list"><p style="font-size: 13px; color: #999; text-align: center;" data-i18n="loading">加载中...</p></div>
@@ -120,17 +111,13 @@
         let isAuthenticated = false;
         let currentUser = null;
         let allProducts = [];
-
-        // ============================================
-        // 多语言字典
-        // ============================================
-        const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", loading: "加载中...", back: "← 返回", not_connected: "未连接钱包", home: "首页", profile: "我的", orders_title: "我的订单", trust_title: "信任背书与合规", trust_kyb: "📜 平台资质", trust_kyb_val: "已通过 KYB 认证", trust_murabaha: "⚖️ 交易合规", trust_murabaha_val: "Murabaha 伊斯兰金融原则", trust_custody: "🔒 资产托管", trust_custody_val: "第三方监管仓储证明", origin: "产地", effect_med: "中药功效", effect_season: "调味功效", craft: "制作工艺", history: "历史由来", no_orders: "暂无订单记录", pay: "支付", buy: "购买" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", loading: "Loading...", back: "← Back", not_connected: "Not Connected", home: "Home", profile: "Profile", orders_title: "My Orders", trust_title: "Trust & Compliance", trust_kyb: "📜 Platform", trust_kyb_val: "KYB Verified", trust_murabaha: "⚖️ Compliance", trust_murabaha_val: "Murabaha Principle", trust_custody: "🔒 Custody", trust_custody_val: "Third-party Custody", origin: "Origin", effect_med: "TCM Effect", effect_season: "Seasoning Effect", craft: "Craftsmanship", history: "History", no_orders: "No orders found", pay: "Pay", buy: "Buy" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", loading: "جاري التحميل...", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", profile: "حسابي", orders_title: "طلباتي", trust_title: "الثقة والامتثال", trust_kyb: "📜 المنصة", trust_kyb_val: "معتمد KYB", trust_murabaha: "⚖️ الامتثال", trust_murabaha_val: "مبدأ المرابحة", trust_custody: "🔒 الحفظ", trust_custody_val: "حفظ طرف ثالث", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "تأثير التوابل", craft: "الحرفية", history: "التاريخ", no_orders: "لا توجد طلبات", pay: "دفع", buy: "شراء" }
-        };
-
         let currentLang = 'zh';
+
+        const dict = {
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", loading: "加载中...", back: "← 返回", not_connected: "未连接钱包", home: "首页", profile: "我的", orders_title: "我的订单", trust_title: "信任背书与合规", trust_kyb: "📜 平台资质", trust_kyb_val: "已通过 KYB 认证", trust_murabaha: "⚖️ 交易合规", trust_murabaha_val: "Murabaha 原则", trust_custody: "🔒 资产托管", trust_custody_val: "第三方仓储证明", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", no_orders: "暂无订单记录", pay: "支付", buy: "购买" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", loading: "Loading...", back: "← Back", not_connected: "Not Connected", home: "Home", profile: "Profile", orders_title: "My Orders", trust_title: "Trust & Compliance", trust_kyb: "📜 Platform", trust_kyb_val: "KYB Verified", trust_murabaha: "⚖️ Compliance", trust_murabaha_val: "Murabaha Principle", trust_custody: "🔒 Custody", trust_custody_val: "Third-party Custody", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", no_orders: "No orders found", pay: "Pay", buy: "Buy" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", loading: "جاري التحميل...", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", profile: "حسابي", orders_title: "طلباتي", trust_title: "الثقة والامتثال", trust_kyb: "📜 المنصة", trust_kyb_val: "معتمد KYB", trust_murabaha: "⚖️ الامتثال", trust_murabaha_val: "مبدأ المرابحة", trust_custody: "🔒 الحفظ", trust_custody_val: "حفظ طرف ثالث", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", no_orders: "لا توجد طلبات", pay: "دفع", buy: "شراء" }
+        };
 
         function changeLanguage(lang) {
             currentLang = lang;
@@ -138,7 +125,7 @@
                 const key = el.getAttribute('data-i18n');
                 if(dict[lang][key]) el.innerText = dict[lang][key];
             });
-            renderProducts('all'); // 重新渲染列表
+            renderProducts('all');
         }
 
         function getUnit(category) {
@@ -147,22 +134,16 @@
             return category === 'spice' ? 'kg' : 'box';
         }
 
-        // ============================================
-        // 产品详细介绍数据字典 (覆盖所有重点商品)
-        // ============================================
-        const productDetails = {
-            '大红八角': {
-                zh: { origin: '中国广西', med: '温阳散寒，理气止痛。用于寒疝腹痛，肾虚腰痛。', season: '强烈的芳香味，能去除肉类的腥膻味，增加菜肴的香气。' },
-                en: { origin: 'Guangxi, China', med: 'Warms Yang and dispels cold, regulates Qi. Used for cold hernia pain.', season: 'Strong aroma, removes meaty odors and enhances dish flavor.' },
-                ar: { origin: 'قوانغشي، الصين', med: 'تدفئة اليانغ وطرد البرد. تستخدم لآلام الفتق الباردة.', season: 'رائحة قوية، تزيل روائح اللحوم وتعزز نكهة الطبق.' }
-            },
-            '德州扒鸡': {
-                zh: { origin: '中国山东德州', craft: '大火煮，小火焖，历经八小时以上慢火煨炖，骨酥肉烂。', history: '创于清朝，因德州为京杭大运河重要码头，商贾云集，扒鸡因便于携带且风味绝佳而闻名天下。' },
-                en: { origin: 'Dezhou, Shandong, China', craft: 'Boiled over high heat, then simmered over low heat for over 8 hours until bones are soft.', history: 'Created in the Qing Dynasty. Dezhou was a major canal port, making this easily portable and delicious chicken famous.' },
-                ar: { origin: 'دتشو، شاندونغ، الصين', craft: 'يُغلى على نار عالية، ثم يُطهى على نار هادئة لأكثر من 8 ساعات.', history: 'تم إنشاؤه في عهد أسرة تشينغ. كانت دتشو ميناء قناة رئيسي، مما جعل هذا الدجاج الشهي الشهير سهل الحمل.' }
-            }
-            // 你可以按照这个格式，继续添加其他产品的介绍
-        };
+        // 核心：自动回退读取逻辑（防止因为翻译没填全导致白屏）
+        function getTrans(p, field) {
+            const langField = `${field}_${currentLang}`;
+            if (currentLang === 'zh') return p[field] || '';
+            return p[langField] || p[field] || ''; 
+        }
+
+        function getProductName(p) {
+            return getTrans(p, 'name');
+        }
 
         async function fetchProducts() {
             const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
@@ -170,17 +151,25 @@
         }
 
         function renderProducts(filter) {
+            document.querySelectorAll('.filter-tab').forEach(t => {
+                t.classList.remove('active');
+                if(t.getAttribute('onclick')?.includes(filter)) t.classList.add('active');
+            });
+
             const listEl = document.getElementById('product-list');
             listEl.innerHTML = '';
             let filtered = filter === 'all' ? allProducts : allProducts.filter(p => p.category === filter);
             
             filtered.forEach(p => {
-                // 简单翻译名称（如果是英文或阿拉伯语环境下，如果是中文产品名就用拼音或英文代替，这里演示就用原名+多语言前缀）
                 listEl.innerHTML += `
                     <div class="card" onclick="showDetail(${p.id})">
                         <img src="${p.image_url}" class="card-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                         <div class="card-info">
-                            <div class="card-title">${p.name}</div>
+                            <div class="card-title">${getProductName(p)}</div>
+                            <div class="badge-group">
+                                ${p.sgs ? `<span class="badge badge-sgs">SGS</span>` : ''}
+                                ${p.halal ? `<span class="badge badge-halal">Halal</span>` : ''}
+                            </div>
                             <div class="card-price">${p.price} Pi / ${getUnit(p.category)}</div>
                         </div>
                     </div>
@@ -198,26 +187,30 @@
             const p = allProducts.find(item => item.id === id);
             const detailEl = document.getElementById('detail-content');
             const unit = getUnit(p.category);
+            const dictLang = dict[currentLang];
             
-            // 获取详细描述，如果没有则显示默认
-            const details = productDetails[p.name] ? productDetails[p.name][currentLang] : null;
-            
+            const medText = getTrans(p, 'effect_med');
+            const seasonText = getTrans(p, 'effect_season');
+            const craftText = getTrans(p, 'craft');
+            const historyText = getTrans(p, 'history');
+            const originText = getTrans(p, 'origin');
+
             let detailHtml = '';
-            if (details) {
+            if (originText || medText || seasonText || craftText || historyText) {
                 detailHtml = `
                     <div class="detail-box">
-                        <h3>${dict[currentLang].origin}: ${details.origin}</h3>
-                        ${details.med ? `<div class="detail-desc"><b>${dict[currentLang].effect_med}:</b> ${details.med}</div>` : ''}
-                        ${details.season ? `<div class="detail-desc"><b>${dict[currentLang].effect_season}:</b> ${details.season}</div>` : ''}
-                        ${details.craft ? `<div class="detail-desc"><b>${dict[currentLang].craft}:</b> ${details.craft}</div>` : ''}
-                        ${details.history ? `<div class="detail-desc"><b>${dict[currentLang].history}:</b> ${details.history}</div>` : ''}
+                        <h3>${dictLang.origin}: ${originText || 'China'}</h3>
+                        ${medText ? `<div class="detail-desc"><b>${dictLang.effect_med}:</b> ${medText}</div>` : ''}
+                        ${seasonText ? `<div class="detail-desc"><b>${dictLang.effect_season}:</b> ${seasonText}</div>` : ''}
+                        ${craftText ? `<div class="detail-desc"><b>${dictLang.craft}:</b> ${craftText}</div>` : ''}
+                        ${historyText ? `<div class="detail-desc"><b>${dictLang.history}:</b> ${historyText}</div>` : ''}
                     </div>
                 `;
             }
 
             detailEl.innerHTML = `
                 <img src="${p.image_url}" class="detail-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
-                <h2 style="font-size: 22px; margin-bottom: 8px;">${p.name}</h2>
+                <h2 style="font-size: 22px; margin-bottom: 8px;">${getProductName(p)}</h2>
                 <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / ${unit}</div>
                 
                 <div class="detail-box">
@@ -225,17 +218,14 @@
                     <div class="detail-row"><span>Cost</span><span>${p.cost} Pi</span></div>
                     <div class="detail-row" style="font-weight:bold; color:#d32f2f;"><span>Total</span><span>${p.price} Pi</span></div>
                 </div>
-
                 ${detailHtml}
-
-                <button class="pay-btn" id="detail-pay-btn" onclick="payPi(${p.price}, '${p.name}')" ${isAuthenticated ? '' : 'disabled'}>
-                    ${isAuthenticated ? `${dict[currentLang].pay} ${p.price} Pi` : dict[currentLang].connect}
+                <button class="pay-btn" id="detail-pay-btn" onclick="payPi(${p.price}, '${getProductName(p)}')" ${isAuthenticated ? '' : 'disabled'} data-amount="${p.price}">
+                    ${isAuthenticated ? `${dictLang.pay} ${p.price} Pi` : dictLang.connect}
                 </button>
             `;
             switchPage('detail');
         }
 
-        // 订单与切换逻辑不变
         async function fetchOrders() {
             if (!currentUser) return;
             const { data, error } = await supabaseClient.from('orders').select('*').eq('username', currentUser).order('created_at', { ascending: false });
