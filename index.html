@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>DZPJ Trade</title>
+    <!-- PWA 配置 -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#d32f2f">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DZPJ Trade">
+    
     <script src="https://sdk.minepi.com/pi-sdk.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -12,7 +19,7 @@
         header { background: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
         .logo { font-size: 18px; font-weight: 700; color: #1a1a1a; }
         .logo span { color: #d32f2f; }
-        .lang-selector { background: #eee; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; margin-left: 10px; }
+        .lang-selector { background: #eee; border: none; padding: 6px 10px; border-radius: 8px; font-size: 13px; margin-left: 10px; outline: none; }
         #connectBtn { background-color: #d32f2f; color: #fff; border: none; padding: 8px 14px; border-radius: 20px; font-size: 13px; font-weight: 600; cursor: pointer; }
         #userStatus { font-size: 14px; color: #2e7d32; font-weight: 600; display: none; }
         
@@ -92,6 +99,8 @@
                 <option value="zh">中文</option>
                 <option value="en">English</option>
                 <option value="ar">العربية</option>
+                <option value="es">Español</option>
+                <option value="fr">Français</option>
             </select>
         </div>
         <div id="userStatus"></div>
@@ -156,18 +165,15 @@
         </div>
     </div>
 
-    <!-- 物流详情弹窗 -->
     <div id="logistics-modal" class="modal-overlay" onclick="closeLogistics(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 style="font-size: 18px; margin-bottom: 16px; text-align: center;" data-i18n="logistics_title">物流跟踪</h2>
-            
             <div class="logistics-header">
                 <h3 id="modal-status-title">运输中</h3>
                 <div class="logistics-row"><span data-i18n="carrier">承运公司</span><span id="modal-carrier">DHL Express / 顺丰国际</span></div>
                 <div class="logistics-row"><span data-i18n="tracking_no">运单号</span><span id="modal-track-no">SF1234567890</span></div>
                 <div class="logistics-row"><span data-i18n="estimated_delivery">预计送达</span><span id="modal-est-time" style="color:#d32f2f; font-weight:bold;">3-5 Days</span></div>
             </div>
-
             <div class="timeline" id="timeline-container"></div>
             <button class="close-btn" onclick="closeLogistics()" data-i18n="close">关闭</button>
         </div>
@@ -196,7 +202,6 @@
         let allProducts = [];
         let currentLang = 'zh';
         
-        // 购物车只存 { id, qty }
         let cart = []; 
         let addressInfo = JSON.parse(localStorage.getItem('dzpj_address_info')) || { name: '', code: '+86', phone: '', address: '' };
 
@@ -208,22 +213,40 @@
                 log_created: "Buyer paid, order generated", log_processing: "Merchant processing, awaiting pickup", log_picked: "Picked up at [Dezhou Distribution Center, China]", log_transit: "Departed from [Shanghai International Transit Center]", log_customs: "Arrived at destination customs, clearing", log_delivery: "[Out for Delivery] Courier is delivering", log_signed: "Delivered, thank you" },
             
             ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي (السجل)", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار",
-                log_created: "دفع المشتري، تم إنشاء الطلب", log_processing: "التاجر يعالج، في انتظار الاستلام", log_picked: "تم الاستلام في [مركز توزيع دتشو، الصين]", log_transit: "غادر من [مركز شنغهاي الدولي]", log_customs: "وصل إلى جمارك الوجهة، جاري التخليص", log_delivery: "[قيد التوصيل] المندوب في الطريق", log_signed: "تم التوصيل، شكراً لك" }
+                log_created: "دفع المشتري، تم إنشاء الطلب", log_processing: "التاجر يعالج، في انتظار الاستلام", log_picked: "تم الاستلام في [مركز توزيع دتشو، الصين]", log_transit: "غادر من [مركز شنغهاي الدولي]", log_customs: "وصل إلى جمارك الوجهة، جاري التخليص", log_delivery: "[قيد التوصيل] المندوب في الطريق", log_signed: "تم التوصيل، شكراً لك" },
+
+            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente",
+                log_created: "Pagado, pedido generado", log_processing: "Procesando", log_picked: "Recogido en China", log_transit: "Enviado desde centro internacional", log_customs: "En aduana", log_delivery: "En reparto", log_signed: "Entregado" },
+
+            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente",
+                log_created: "Payé, commande générée", log_processing: "En traitement", log_picked: "Collecté en Chine", log_transit: "Expédié du centre international", log_customs: "En douane", log_delivery: "En cours de livraison", log_signed: "Livré" }
         };
+
+        // 自动识别语言
+        function detectLanguage() {
+            const browserLang = (navigator.language || navigator.userLanguage).split('-')[0].toLowerCase();
+            if (['zh', 'en', 'ar', 'es', 'fr'].includes(browserLang)) {
+                return browserLang;
+            }
+            return 'en'; // 默认英语
+        }
 
         function changeLanguage(lang) {
             currentLang = lang;
+            document.getElementById('langSelect').value = lang;
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if(dict[lang][key]) el.innerText = dict[lang][key];
             });
             renderProducts('all');
-            renderCart(); // 语言切换时重新渲染购物车
+            renderCart();
         }
 
         function getUnit(category) {
             if(currentLang === 'zh') return category === 'spice' ? '公斤' : '盒';
             if(currentLang === 'ar') return category === 'spice' ? 'كغ' : 'صندوق';
+            if(currentLang === 'es') return category === 'spice' ? 'kg' : 'caja';
+            if(currentLang === 'fr') return category === 'spice' ? 'kg' : 'boîte';
             return category === 'spice' ? 'kg' : 'box';
         }
 
@@ -240,7 +263,6 @@
             if (!error) { 
                 allProducts = data; 
                 renderProducts('all'); 
-                // 页面加载时，如果有本地临时购物车，先渲染出来（其实如果登录了会覆盖）
                 renderCart();
             }
         }
@@ -304,31 +326,19 @@
             switchPage('detail');
         }
 
-        // --- 购物车云端同步逻辑 ---
         async function addToCart(id) {
             if(!currentUser) { alert("请先连接钱包"); return; }
-            
             const existing = cart.find(item => item.id === id);
-            if(existing) { existing.qty += 1; } else {
-                cart.push({ id: id, qty: 1 });
-            }
-            
-            await syncCartToCloud(); // 每次加购直接同步云端
+            if(existing) { existing.qty += 1; } else { cart.push({ id: id, qty: 1 }); }
+            await syncCartToCloud(); 
             alert(dict[currentLang].add_cart + " Success!");
         }
 
         async function syncCartToCloud() {
             if (!currentUser) return;
-            
-            // 策略：全删全插（最简单粗暴且不出错）
             await supabaseClient.from('carts').delete().eq('username', currentUser);
-            
             if (cart.length > 0) {
-                const insertData = cart.map(item => ({
-                    username: currentUser,
-                    product_id: item.id,
-                    qty: item.qty
-                }));
+                const insertData = cart.map(item => ({ username: currentUser, product_id: item.id, qty: item.qty }));
                 await supabaseClient.from('carts').insert(insertData);
             }
             renderCart();
@@ -460,9 +470,7 @@
                 return;
             }
             listEl.innerHTML = '';
-            
             window.userOrders = data;
-
             data.forEach((order, index) => {
                 listEl.innerHTML += `
                     <div class="order-card" onclick="showLogistics(${index})">
@@ -549,8 +557,6 @@
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
                 document.getElementById('profile-username').innerText = currentUser;
-                
-                // 关键：登录成功后，拉取云端购物车
                 await loadCartFromCloud();
             } catch (err) {
                 document.getElementById('connectBtn').innerText = dict[currentLang].connect;
@@ -560,7 +566,17 @@
 
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
 
-        window.addEventListener('load', () => { fetchProducts(); });
+        // 初始化：注册 PWA 和 自动识别语言
+        window.addEventListener('load', () => { 
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').then(() => console.log("Service Worker Registered"));
+            }
+            
+            currentLang = detectLanguage();
+            changeLanguage(currentLang);
+            
+            fetchProducts(); 
+        });
     </script>
 </body>
 </html>
