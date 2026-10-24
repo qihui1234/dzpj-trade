@@ -43,7 +43,9 @@
         .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .card-price { color: #d32f2f; font-size: 16px; font-weight: 700; margin-top: 6px; }
         
-        .back-btn { display: inline-block; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; }
+        /* 页面返回按钮统一样式 */
+        .back-btn { display: inline-flex; align-items: center; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; font-weight: 600; font-size: 14px; color: #333; }
+        
         .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
         .detail-box { background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #f0f0f0; }
         .detail-box h3 { font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
@@ -102,6 +104,8 @@
         .nav-item { flex: 1; text-align: center; padding: 12px 0; font-size: 12px; color: #999; cursor: pointer; }
         .nav-item.active { color: #d32f2f; font-weight: 600; }
         .nav-icon { font-size: 20px; display: block; margin-bottom: 4px; }
+
+        .toast { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.8); color: #fff; padding: 12px 24px; border-radius: 8px; z-index: 3000; display: none; font-size: 14px; }
     </style>
 </head>
 <body>
@@ -147,11 +151,12 @@
     </div>
 
     <div id="page-detail" class="page">
-        <div class="back-btn" onclick="switchPage('home')" data-i18n="back">← 返回</div>
+        <div class="back-btn" id="detail-back-btn" onclick="goBackFromDetail()" data-i18n="back">← 返回</div>
         <div id="detail-content"></div>
     </div>
 
     <div id="page-cart" class="page">
+        <div class="back-btn" onclick="switchPage('home')" data-i18n="back_home">← 返回首页</div>
         <h2 style="font-size: 20px; margin-bottom: 16px;" data-i18n="cart">购物车</h2>
         <div id="cart-list"></div>
         <div id="cart-summary" style="display: none; background: #fff; padding: 16px; border-radius: 12px; margin-top: 16px;">
@@ -164,6 +169,7 @@
     </div>
 
     <div id="page-profile" class="page">
+        <div class="back-btn" onclick="switchPage('home')" data-i18n="back_home">← 返回首页</div>
         <div class="profile-header">
             <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
             <h2 id="profile-username" style="font-size: 18px;" data-i18n="not_connected">未连接钱包</h2>
@@ -173,18 +179,18 @@
             <h3 data-i18n="address_title">收货信息管理</h3>
             <div class="form-group">
                 <label data-i18n="receiver_name">收件人姓名</label>
-                <input type="text" id="user-name" placeholder="请输入真实姓名" onchange="saveAddressInfo()">
+                <input type="text" id="user-name" placeholder="请输入真实姓名" oninput="saveAddressInfo()">
             </div>
             <div class="form-group">
                 <label data-i18n="phone">联系电话</label>
                 <div class="phone-group">
-                    <input type="text" id="user-code" placeholder="+86" onchange="saveAddressInfo()">
-                    <input type="tel" id="user-phone" placeholder="手机号码" onchange="saveAddressInfo()">
+                    <input type="text" id="user-code" placeholder="+86" oninput="saveAddressInfo()">
+                    <input type="tel" id="user-phone" placeholder="手机号码" oninput="saveAddressInfo()">
                 </div>
             </div>
             <div class="form-group">
                 <label data-i18n="detail_address">详细地址</label>
-                <input type="text" id="user-address" placeholder="省、市、区、街道门牌号" onchange="saveAddressInfo()">
+                <input type="text" id="user-address" placeholder="省、市、区、街道门牌号" oninput="saveAddressInfo()">
             </div>
         </div>
 
@@ -195,7 +201,6 @@
         </div>
     </div>
 
-    <!-- 物流详情弹窗 -->
     <div id="logistics-modal" class="modal-overlay" onclick="closeLogistics(event)">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 style="font-size: 18px; margin-bottom: 16px; text-align: center;" data-i18n="logistics_title">物流跟踪</h2>
@@ -219,6 +224,8 @@
         <img id="cert-image" src="" alt="Certificate">
         <p style="color:#fff; margin-top:20px; font-size:14px;">官方认证原件 (演示)</p>
     </div>
+    
+    <div id="toast" class="toast"></div>
 
     <nav class="bottom-nav">
         <div class="nav-item active" id="nav-home" onclick="switchPage('home')">
@@ -245,6 +252,8 @@
         
         let currentSearchQuery = '';
         let currentCategory = 'all';
+        let currentDetailId = null; 
+        let lastPageBeforeDetail = 'home'; 
 
         let cart = []; 
         let addressInfo = JSON.parse(localStorage.getItem('dzpj_address_info')) || { name: '', code: '+86', phone: '', address: '' };
@@ -253,12 +262,19 @@
         const HALAL_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png';
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", blockchain_tx: "链上存证交易", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", blockchain_tx: "On-chain TxID", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", blockchain_tx: "معرف المعاملة على السلسلة", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات" },
-            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", blockchain_tx: "TxID en Cadena", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos" },
-            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", blockchain_tx: "TxID sur la Chaîne", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé" }
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", back_home: "← 返回首页", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", blockchain_tx: "链上存证交易", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品", toast_added: "已加入购物车！", toast_connect_first: "请先连接钱包！", toast_fill_address: "请去【我的】填写完整收货信息！" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", back_home: "← Back to Home", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", blockchain_tx: "On-chain TxID", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found", toast_added: "Added to cart!", toast_connect_first: "Please connect wallet first!", toast_fill_address: "Please fill in your shipping info in 'Profile'!" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", back_home: "← العودة إلى الرئيسية", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", blockchain_tx: "معرف المعاملة على السلسلة", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات", toast_added: "تمت الإضافة إلى السلة!", toast_connect_first: "يرجى ربط المحفظة أولاً!", toast_fill_address: "يرجى ملء معلومات الشحن!" },
+            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", back_home: "← Volver al Inicio", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", blockchain_tx: "TxID en Cadena", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos", toast_added: "¡Añadido al carrito!", toast_connect_first: "¡Conecta la billetera primero!", toast_fill_address: "¡Completa la información de envío!" },
+            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", back_home: "← Retour à l'Accueil", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", blockchain_tx: "TxID sur la Chaîne", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé", toast_added: "Ajouté au panier !", toast_connect_first: "Veuillez d'abord connecter le portefeuille !", toast_fill_address: "Veuillez remplir vos informations de livraison !" }
         };
+
+        function showToast(msgKey) {
+            const toast = document.getElementById('toast');
+            toast.innerText = dict[currentLang][msgKey];
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2000);
+        }
 
         function detectLanguage() {
             const browserLang = (navigator.language || navigator.userLanguage).split('-')[0].toLowerCase();
@@ -279,6 +295,10 @@
             });
             renderFilteredProducts();
             renderCart();
+            
+            if (document.getElementById('page-detail').classList.contains('active') && currentDetailId) {
+                showDetail(currentDetailId, true); 
+            }
         }
 
         function getUnit(category) {
@@ -354,7 +374,16 @@
             document.getElementById('cert-viewer').style.display = 'none';
         }
 
-        function showDetail(id) {
+        function showDetail(id, isLanguageChange = false) {
+            currentDetailId = id;
+            if (!isLanguageChange) {
+                if (document.getElementById('page-cart').classList.contains('active')) {
+                    lastPageBeforeDetail = 'cart';
+                } else {
+                    lastPageBeforeDetail = 'home';
+                }
+            }
+            
             const p = allProducts.find(item => item.id === id);
             const detailEl = document.getElementById('detail-content');
             const unit = getUnit(p.category);
@@ -388,7 +417,6 @@
                 certHtml += `</div>`;
             }
 
-            // 这里去掉了假哈希，加上了 RWA 资产上链说明
             detailEl.innerHTML = `
                 <img src="${p.image_url}" class="detail-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                 <h2 style="font-size: 22px; margin-bottom: 8px;">${getProductName(p)}</h2>
@@ -401,15 +429,26 @@
                 </div>
                 <button class="pay-btn" onclick="addToCart(${p.id})" data-i18n="add_cart">加入购物车</button>
             `;
-            switchPage('detail');
+            switchPage('detail', false); 
+        }
+
+        function goBackFromDetail() {
+            if (lastPageBeforeDetail === 'cart') {
+                switchPage('cart');
+            } else {
+                switchPage('home');
+            }
         }
 
         async function addToCart(id) {
-            if(!currentUser) { alert("请先连接钱包"); return; }
+            if(!currentUser) { 
+                showToast('toast_connect_first'); 
+                return; 
+            }
             const existing = cart.find(item => item.id === id);
             if(existing) { existing.qty += 1; } else { cart.push({ id: id, qty: 1 }); }
             await syncCartToCloud(); 
-            alert(dict[currentLang].add_cart + " Success!");
+            showToast('toast_added');
         }
 
         async function syncCartToCloud() {
@@ -451,7 +490,7 @@
                 total += p.price * item.qty;
                 listEl.innerHTML += `
                     <div class="cart-item">
-                        <div class="cart-item-info">
+                        <div class="cart-item-info" onclick="showDetail(${p.id})" style="cursor:pointer;">
                             <div style="font-weight:bold;">${getProductName(p)}</div>
                             <div style="color:#d32f2f; font-size:14px; margin-top:4px;">${p.price} Pi / ${getUnit(p.category)}</div>
                         </div>
@@ -484,9 +523,12 @@
         }
 
         async function checkoutCart() {
-            if (!isAuthenticated) { alert("请先连接钱包"); return; }
+            if (!isAuthenticated) { 
+                showToast('toast_connect_first');
+                return; 
+            }
             if (!addressInfo.name || !addressInfo.code || !addressInfo.phone || !addressInfo.address) { 
-                alert("请先去【我的】页面填写完整的姓名、区号、电话和地址！"); 
+                showToast('toast_fill_address');
                 switchPage('profile'); 
                 return; 
             }
@@ -505,7 +547,7 @@
             try {
                 await Pi.createPayment({
                     amount: totalAmount,
-                    memo: "购物车结算: " + itemNames.join(', '),
+                    memo: "结算: " + itemNames.join(', '),
                     metadata: { cart: cart, addressInfo: addressInfo }
                 }, {
                     onReadyForServerApproval: async (paymentId) => {
@@ -514,7 +556,6 @@
                     onReadyForServerCompletion: async function(paymentId, txid) {
                         const res = await fetch('/api/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId, txid }) });
                         if (res.ok) {
-                            // 记录真实的 TxID
                             await supabaseClient.from('orders').insert([{ 
                                 username: currentUser, 
                                 item_name: itemNames.join(', '), 
@@ -584,10 +625,8 @@
             document.getElementById('modal-est-time').innerText = estDeliveryStr;
             document.getElementById('modal-track-no').innerText = "SF" + Math.floor(Math.random() * 10000000000);
             
-            // 真实的 TxID 渲染
             const txidLink = document.getElementById('modal-txid-link');
             txidLink.innerText = order.txid;
-            // 因为当前是测试网，所以跳转到测试网的区块浏览器
             txidLink.href = `https://blockexplorer.minepi.com/testnet/tx/${order.txid}`;
 
             const logData = [
@@ -616,11 +655,18 @@
             document.getElementById('logistics-modal').classList.remove('active');
         }
 
-        function switchPage(pageName) {
+        function switchPage(pageName, updateNav = true) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(`page-${pageName}`).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(`nav-${pageName}`).classList.add('active');
+            
+            if (updateNav) {
+                document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+                if(pageName === 'home' || pageName === 'detail') {
+                    document.getElementById('nav-home').classList.add('active');
+                } else {
+                    document.getElementById(`nav-${pageName}`).classList.add('active');
+                }
+            }
             
             if(pageName === 'profile') {
                 document.getElementById('user-name').value = addressInfo.name;
