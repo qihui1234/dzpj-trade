@@ -29,11 +29,13 @@
         .btn-green { background: #4caf50; }
         .btn-red { background: #f44336; }
 
-        /* 新增商品表单 */
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .form-group { display: flex; flex-direction: column; }
-        .form-group label { font-size: 13px; margin-bottom: 5px; color: #666; }
-        .form-group input, .form-group select, .form-group textarea { padding: 10px; border: 1px solid #ddd; border-radius: 6px; }
+        /* 弹窗样式 */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: #fff; padding: 24px; border-radius: 12px; width: 90%; max-width: 400px; }
+        .modal-box h3 { margin-bottom: 15px; font-size: 18px; }
+        .modal-box input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; margin-bottom: 15px; font-size: 16px; }
+        .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
     </style>
 </head>
 <body>
@@ -46,7 +48,7 @@
 
     <div class="tabs">
         <button class="tab active" onclick="switchTab('orders')">📦 订单管理</button>
-        <button class="tab" onclick="switchTab('products')">🌿 商品管理</button>
+        <button class="tab" onclick="switchTab('products')">🌿 商品与库存管理</button>
     </div>
 
     <!-- 订单管理面板 -->
@@ -71,18 +73,15 @@
 
     <!-- 商品管理面板 -->
     <div id="panel-products" class="panel">
-        <div style="display:flex; justify-content:space-between; margin-bottom:15px;">
-            <h2 style="font-size:16px;">商品列表</h2>
-            <button class="btn btn-green" onclick="alert('为了演示简便，添加商品功能可参考之前的SQL语法，或者后续开发完整表单。')">+ 新增商品</button>
-        </div>
+        <h2 style="font-size:16px; margin-bottom:15px;">商品列表 (点击修改即可补货/改价)</h2>
         <table>
             <thead>
                 <tr>
                     <th>ID</th>
                     <th>名称</th>
                     <th>分类</th>
-                    <th>价格 (Pi)</th>
-                    <th>库存</th>
+                    <th>当前价格 (Pi)</th>
+                    <th>当前库存</th>
                     <th>操作</th>
                 </tr>
             </thead>
@@ -93,11 +92,27 @@
     </div>
 </div>
 
+<!-- 修改商品弹窗 -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-box">
+        <h3 id="edit-title">修改商品信息</h3>
+        <label style="font-size:13px; color:#666;">商品价格 (Pi)</label>
+        <input type="number" step="0.1" id="edit-price">
+        <label style="font-size:13px; color:#666;">商品库存 (件)</label>
+        <input type="number" id="edit-stock">
+        <div class="modal-actions">
+            <button class="btn" style="background:#ccc;" onclick="closeModal()">取消</button>
+            <button class="btn btn-green" onclick="saveProductEdit()">保存修改</button>
+        </div>
+    </div>
+</div>
+
 <script>
-    // 填入你的 Supabase 配置
     const SUPABASE_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co';
     const SUPABASE_ANON_KEY = 'sb_publishable_72-nfp11uFWf5kv6_qKViA_jp_OZA5S'; 
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let editingProductId = null;
 
     function switchTab(tab) {
         document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -109,7 +124,7 @@
         if(tab === 'products') fetchProducts();
     }
 
-    // 加载订单
+    // --- 订单管理 ---
     async function fetchOrders() {
         const tbody = document.getElementById('order-table-body');
         const { data, error } = await supabaseClient.from('orders').select('*').order('created_at', { ascending: false });
@@ -139,20 +154,14 @@
         });
     }
 
-    // 更新订单状态
     async function updateOrderStatus(orderId, newStatus) {
         if(!confirm(`确定要将订单状态改为【${newStatus}】吗？`)) return;
-        
         const { error } = await supabaseClient.from('orders').update({ status: newStatus }).eq('id', orderId);
-        if (error) {
-            alert("更新失败：" + error.message);
-        } else {
-            alert("更新成功！");
-            fetchOrders(); // 刷新列表
-        }
+        if (error) alert("更新失败：" + error.message);
+        else { alert("更新成功！"); fetchOrders(); }
     }
 
-    // 加载商品
+    // --- 商品与库存管理 ---
     async function fetchProducts() {
         const tbody = document.getElementById('product-table-body');
         const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
@@ -166,14 +175,47 @@
                     <td>${p.name}</td>
                     <td>${p.category === 'spice' ? '香料' : '清真食品'}</td>
                     <td style="color:#d32f2f; font-weight:bold;">${p.price} Pi</td>
-                    <td>${p.stock}</td>
-                    <td><button class="btn" onclick="alert('库存修改功能开发中')">编辑</button></td>
+                    <td style="font-weight:bold; color:${p.stock < 10 ? 'red' : 'green'};">${p.stock}</td>
+                    <td><button class="btn" onclick="openEditModal(${p.id}, ${p.price}, ${p.stock})">修改</button></td>
                 </tr>
             `;
         });
     }
 
-    // 默认加载订单
+    function openEditModal(id, price, stock) {
+        editingProductId = id;
+        document.getElementById('edit-price').value = price;
+        document.getElementById('edit-stock').value = stock;
+        document.getElementById('edit-modal').classList.add('active');
+    }
+
+    function closeModal() {
+        document.getElementById('edit-modal').classList.remove('active');
+        editingProductId = null;
+    }
+
+    async function saveProductEdit() {
+        if(!editingProductId) return;
+        const newPrice = parseFloat(document.getElementById('edit-price').value);
+        const newStock = parseInt(document.getElementById('edit-stock').value);
+
+        if(isNaN(newPrice) || isNaN(newStock)) {
+            alert("请输入有效的数字！"); return;
+        }
+
+        const { error } = await supabaseClient.from('products')
+            .update({ price: newPrice, stock: newStock })
+            .eq('id', editingProductId);
+
+        if(error) {
+            alert("保存失败：" + error.message);
+        } else {
+            alert("修改成功！前端已实时更新。");
+            closeModal();
+            fetchProducts();
+        }
+    }
+
     window.addEventListener('load', fetchOrders);
 </script>
 </body>
