@@ -22,16 +22,29 @@
         .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
         .page.active { display: block; }
         
+        /* 骨架屏动画 */
+        @keyframes shimmer {
+            0% { background-position: -468px 0; }
+            100% { background-position: 468px 0; }
+        }
+        .skeleton-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 12px; display: flex; gap: 12px; align-items: center; border: 1px solid #f0f0f0; }
+        .skeleton-img { width: 80px; height: 80px; border-radius: 8px; background: #f0f0f0; background-image: linear-gradient(to right, #f0f0f0 0%, #e0e0e0 20%, #f0f0f0 40%, #f0f0f0 100%); background-repeat: no-repeat; background-size: 800px 104px; animation: shimmer 1.5s infinite linear; }
+        .skeleton-text-group { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        .skeleton-text { height: 16px; background: #f0f0f0; border-radius: 4px; background-image: linear-gradient(to right, #f0f0f0 0%, #e0e0e0 20%, #f0f0f0 40%, #f0f0f0 100%); background-repeat: no-repeat; background-size: 800px 104px; animation: shimmer 1.5s infinite linear; }
+        .skeleton-text.short { width: 60%; }
+
+        /* 搜索框清空按钮 */
+        .search-container { position: relative; background: #fff; border-radius: 20px; padding: 8px 36px 8px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .search-icon { color: #999; margin-right: 8px; font-size: 16px; }
+        .search-container input { border: none; outline: none; flex: 1; font-size: 14px; background: transparent; }
+        .clear-btn { position: absolute; right: 12px; color: #999; font-size: 20px; cursor: pointer; display: none; font-weight: bold; }
+
         .trust-banner { background: linear-gradient(135deg, #fff, #f0f4ff); border: 1px solid #d0dfff; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,50,200,0.05); }
         .trust-banner-left { display: flex; align-items: center; gap: 10px; }
         .trust-icon { font-size: 24px; }
         .trust-text h4 { font-size: 14px; color: #1565c0; margin-bottom: 2px; }
         .trust-text p { font-size: 11px; color: #666; }
         .trust-btn { background: #1565c0; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
-
-        .search-container { background: #fff; border-radius: 20px; padding: 8px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .search-icon { color: #999; margin-right: 8px; font-size: 16px; }
-        .search-container input { border: none; outline: none; flex: 1; font-size: 14px; background: transparent; }
 
         .filter-tabs { display: flex; gap: 10px; margin-bottom: 16px; overflow-x: auto; }
         .filter-tab { background: #fff; padding: 6px 16px; border-radius: 16px; font-size: 13px; color: #666; border: 1px solid #eee; cursor: pointer; white-space: nowrap; }
@@ -43,7 +56,6 @@
         .card-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
         .card-price { color: #d32f2f; font-size: 16px; font-weight: 700; margin-top: 6px; }
         
-        /* 页面返回按钮统一样式 */
         .back-btn { display: inline-flex; align-items: center; margin-bottom: 16px; padding: 8px 12px; background: #fff; border-radius: 8px; border: 1px solid #eee; cursor: pointer; font-weight: 600; font-size: 14px; color: #333; }
         
         .detail-img { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; margin-bottom: 16px; }
@@ -60,8 +72,10 @@
         .cart-item-info { flex: 1; }
         .qty-controls { display: flex; align-items: center; gap: 10px; }
         .qty-btn { width: 26px; height: 26px; background: #eee; border: none; border-radius: 50%; font-size: 16px; cursor: pointer; }
+        .del-btn { background: none; border: none; font-size: 18px; cursor: pointer; margin-left: 8px; }
         
         .profile-header { background: #d32f2f; border-radius: 12px; padding: 24px; text-align: center; color: white; margin-bottom: 20px; }
+        .logout-btn { margin-top: 10px; background: #fff; color: #d32f2f; border: 1px solid #d32f2f; padding: 6px 16px; border-radius: 20px; font-size: 13px; cursor: pointer; display: none; }
         
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; color: #666; margin-bottom: 4px; }
@@ -85,6 +99,8 @@
         .logistics-header h3 { font-size: 16px; margin-bottom: 10px; color: #d32f2f; }
         .logistics-row { display: flex; justify-content: space-between; font-size: 13px; color: #666; margin-bottom: 6px; }
         .logistics-row span:last-child { font-weight: 500; color: #333; }
+        
+        .copy-btn { background: #1565c0; color: #fff; border: none; padding: 2px 6px; border-radius: 4px; font-size: 11px; cursor: pointer; margin-left: 6px; }
 
         .timeline { border-left: 2px solid #e0e0e0; margin-left: 10px; padding-left: 20px; background: #fff; padding: 20px; border-radius: 12px; }
         .timeline-item { position: relative; margin-bottom: 20px; }
@@ -140,6 +156,7 @@
         <div class="search-container">
             <span class="search-icon">🔍</span>
             <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜索商品..." data-i18n-placeholder="search_placeholder">
+            <span class="clear-btn" id="clear-search-btn" onclick="clearSearch()">×</span>
         </div>
 
         <div class="filter-tabs">
@@ -173,6 +190,7 @@
         <div class="profile-header">
             <div style="font-size: 40px; margin-bottom: 10px;">👤</div>
             <h2 id="profile-username" style="font-size: 18px;" data-i18n="not_connected">未连接钱包</h2>
+            <button class="logout-btn" id="logout-btn" onclick="logout()" data-i18n="logout">退出登录</button>
         </div>
         
         <div class="detail-box">
@@ -212,6 +230,7 @@
                 <div class="logistics-row" style="margin-top:10px; border-top:1px dashed #eee; padding-top:10px; display:block;">
                     <span data-i18n="blockchain_tx" style="display:block; margin-bottom:4px;">链上存证交易 (TxID):</span>
                     <a id="modal-txid-link" href="#" target="_blank" class="tx-link">Loading...</a>
+                    <button class="copy-btn" onclick="copyTxId()" data-i18n="copy">复制</button>
                 </div>
             </div>
             <div class="timeline" id="timeline-container"></div>
@@ -262,11 +281,11 @@
         const HALAL_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png';
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", back_home: "← 返回首页", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", blockchain_tx: "链上存证交易", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品", toast_added: "已加入购物车！", toast_connect_first: "请先连接钱包！", toast_fill_address: "请去【我的】填写完整收货信息！" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", back_home: "← Back to Home", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", blockchain_tx: "On-chain TxID", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found", toast_added: "Added to cart!", toast_connect_first: "Please connect wallet first!", toast_fill_address: "Please fill in your shipping info in 'Profile'!" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", back_home: "← العودة إلى الرئيسية", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", blockchain_tx: "معرف المعاملة على السلسلة", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات", toast_added: "تمت الإضافة إلى السلة!", toast_connect_first: "يرجى ربط المحفظة أولاً!", toast_fill_address: "يرجى ملء معلومات الشحن!" },
-            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", back_home: "← Volver al Inicio", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", blockchain_tx: "TxID en Cadena", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos", toast_added: "¡Añadido al carrito!", toast_connect_first: "¡Conecta la billetera primero!", toast_fill_address: "¡Completa la información de envío!" },
-            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", back_home: "← Retour à l'Accueil", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", blockchain_tx: "TxID sur la Chaîne", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé", toast_added: "Ajouté au panier !", toast_connect_first: "Veuillez d'abord connecter le portefeuille !", toast_fill_address: "Veuillez remplir vos informations de livraison !" }
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", back_home: "← 返回首页", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", blockchain_tx: "链上存证交易", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品", toast_added: "已加入购物车！", toast_connect_first: "请先连接钱包！", toast_fill_address: "请去【我的】填写完整收货信息！", logout: "退出登录", copy: "复制", copy_success: "已复制到剪贴板！", invalid_phone: "手机号格式不正确！" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", back_home: "← Back to Home", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", blockchain_tx: "On-chain TxID", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found", toast_added: "Added to cart!", toast_connect_first: "Please connect wallet first!", toast_fill_address: "Please fill in your shipping info in 'Profile'!", logout: "Logout", copy: "Copy", copy_success: "Copied to clipboard!", invalid_phone: "Invalid phone number!" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", back_home: "← العودة إلى الرئيسية", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", blockchain_tx: "معرف المعاملة على السلسلة", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات", toast_added: "تمت الإضافة إلى السلة!", toast_connect_first: "يرجى ربط المحفظة أولاً!", toast_fill_address: "يرجى ملء معلومات الشحن!", logout: "تسجيل الخروج", copy: "نسخ", copy_success: "تم النسخ!", invalid_phone: "رقم هاتف غير صالح!" },
+            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", back_home: "← Volver al Inicio", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", blockchain_tx: "TxID en Cadena", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos", toast_added: "¡Añadido al carrito!", toast_connect_first: "¡Conecta la billetera primero!", toast_fill_address: "¡Completa la información de envío!", logout: "Cerrar Sesión", copy: "Copiar", copy_success: "¡Copiado!", invalid_phone: "¡Número inválido!" },
+            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", back_home: "← Retour à l'Accueil", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", blockchain_tx: "TxID sur la Chaîne", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé", toast_added: "Ajouté au panier !", toast_connect_first: "Veuillez d'abord connecter le portefeuille !", toast_fill_address: "Veuillez remplir vos informations de livraison !", logout: "Déconnexion", copy: "Copier", copy_success: "Copié !", invalid_phone: "Numéro invalide !" }
         };
 
         function showToast(msgKey) {
@@ -318,6 +337,14 @@
         function getProductName(p) { return getTrans(p, 'name'); }
 
         async function fetchProducts() {
+            // 显示骨架屏
+            const listEl = document.getElementById('product-list');
+            listEl.innerHTML = `
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text-group"><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text-group"><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div>
+                <div class="skeleton-card"><div class="skeleton-img"></div><div class="skeleton-text-group"><div class="skeleton-text"></div><div class="skeleton-text short"></div></div></div>
+            `;
+            
             const { data, error } = await supabaseClient.from('products').select('*').order('id', { ascending: true });
             if (!error) { allProducts = data; renderFilteredProducts(); renderCart(); }
         }
@@ -356,6 +383,14 @@
 
         function handleSearch() {
             currentSearchQuery = document.getElementById('search-input').value;
+            document.getElementById('clear-search-btn').style.display = currentSearchQuery ? 'block' : 'none';
+            renderFilteredProducts();
+        }
+
+        function clearSearch() {
+            document.getElementById('search-input').value = '';
+            currentSearchQuery = '';
+            document.getElementById('clear-search-btn').style.display = 'none';
             renderFilteredProducts();
         }
 
@@ -445,8 +480,14 @@
                 showToast('toast_connect_first'); 
                 return; 
             }
+            const p = allProducts.find(prod => prod.id === id);
             const existing = cart.find(item => item.id === id);
-            if(existing) { existing.qty += 1; } else { cart.push({ id: id, qty: 1 }); }
+            if(existing) { 
+                if(existing.qty >= p.stock) { alert("库存不足"); return; }
+                existing.qty += 1; 
+            } else { 
+                cart.push({ id: id, qty: 1 }); 
+            }
             await syncCartToCloud(); 
             showToast('toast_added');
         }
@@ -498,6 +539,7 @@
                             <button class="qty-btn" onclick="updateQty(${index}, -1)">-</button>
                             <span>${item.qty}</span>
                             <button class="qty-btn" onclick="updateQty(${index}, 1)">+</button>
+                            <button class="del-btn" onclick="deleteCartItem(${index})">🗑️</button>
                         </div>
                     </div>
                 `;
@@ -507,9 +549,18 @@
         }
 
         async function updateQty(index, change) {
-            cart[index].qty += change;
-            if(cart[index].qty <= 0) cart.splice(index, 1);
+            const item = cart[index];
+            const p = allProducts.find(prod => prod.id === item.id);
+            if(change > 0 && item.qty >= p.stock) { alert("库存不足"); return; }
+            
+            item.qty += change;
+            if(item.qty <= 0) cart.splice(index, 1);
             await syncCartToCloud(); 
+        }
+        
+        async function deleteCartItem(index) {
+            cart.splice(index, 1);
+            await syncCartToCloud();
         }
 
         function saveAddressInfo() {
@@ -532,17 +583,22 @@
                 switchPage('profile'); 
                 return; 
             }
+            // 手机号校验 (简单正则)
+            if(!/^\d{5,15}$/.test(addressInfo.phone)) {
+                showToast('invalid_phone');
+                return;
+            }
             if (cart.length === 0) return;
 
             let totalAmount = 0;
             let itemNames = [];
-            cart.forEach(item => {
+            for(let item of cart) {
                 const p = allProducts.find(prod => prod.id === item.id);
-                if(p) {
-                    totalAmount += p.price * item.qty;
-                    itemNames.push(`${getProductName(p)}x${item.qty}`);
-                }
-            });
+                if(!p) continue;
+                if(item.qty > p.stock) { alert(`${getProductName(p)} 库存不足`); return; }
+                totalAmount += p.price * item.qty;
+                itemNames.push(`${getProductName(p)}x${item.qty}`);
+            }
 
             try {
                 await Pi.createPayment({
@@ -567,9 +623,20 @@
                                 phone: addressInfo.phone,
                                 status: '待发货'
                             }]);
+                            
+                            // 扣减库存
+                            for(let item of cart) {
+                                const p = allProducts.find(prod => prod.id === item.id);
+                                if(p) {
+                                    const newStock = p.stock - item.qty;
+                                    await supabaseClient.from('products').update({ stock: newStock }).eq('id', p.id);
+                                }
+                            }
+
                             alert(`支付成功！已生成订单。`);
                             cart = [];
                             await syncCartToCloud();
+                            fetchProducts(); // 重新拉取最新库存
                             switchPage('home');
                         } else {
                             alert("防刷单校验失败！");
@@ -628,6 +695,7 @@
             const txidLink = document.getElementById('modal-txid-link');
             txidLink.innerText = order.txid;
             txidLink.href = `https://blockexplorer.minepi.com/testnet/tx/${order.txid}`;
+            window.currentTxId = order.txid; // 保存供复制使用
 
             const logData = [
                 { time: new Date(orderTime.getTime() + 1000 * 60 * 60 * 24 * 2), title: dictLang.log_transit, active: true },
@@ -648,6 +716,12 @@
             });
 
             modal.classList.add('active');
+        }
+        
+        function copyTxId() {
+            navigator.clipboard.writeText(window.currentTxId).then(() => {
+                showToast('copy_success');
+            });
         }
 
         function closeLogistics(e) {
@@ -688,12 +762,26 @@
                 document.getElementById('connectBtn').style.display = 'none';
                 document.getElementById('userStatus').innerText = '✅ ' + currentUser;
                 document.getElementById('userStatus').style.display = 'block';
+                document.getElementById('logout-btn').style.display = 'inline-block';
                 document.getElementById('profile-username').innerText = currentUser;
                 await loadCartFromCloud();
             } catch (err) {
                 document.getElementById('connectBtn').innerText = dict[currentLang].connect;
                 alert("连接失败: " + (err.message || err));
             }
+        }
+
+        function logout() {
+            isAuthenticated = false;
+            currentUser = null;
+            cart = [];
+            document.getElementById('connectBtn').style.display = 'block';
+            document.getElementById('connectBtn').innerText = dict[currentLang].connect;
+            document.getElementById('userStatus').style.display = 'none';
+            document.getElementById('logout-btn').style.display = 'none';
+            document.getElementById('profile-username').innerText = dict[currentLang].not_connected;
+            renderCart();
+            switchPage('home');
         }
 
         function onIncompletePaymentFound(payment) { console.log("未完成支付:", payment); }
