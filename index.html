@@ -22,7 +22,6 @@
         .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
         .page.active { display: block; }
         
-        /* 信任背书横幅 */
         .trust-banner { background: linear-gradient(135deg, #fff, #f0f4ff); border: 1px solid #d0dfff; border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; box-shadow: 0 4px 10px rgba(0,50,200,0.05); }
         .trust-banner-left { display: flex; align-items: center; gap: 10px; }
         .trust-icon { font-size: 24px; }
@@ -30,7 +29,6 @@
         .trust-text p { font-size: 11px; color: #666; }
         .trust-btn { background: #1565c0; color: #fff; border: none; padding: 6px 10px; border-radius: 6px; font-size: 12px; font-weight: bold; }
 
-        /* 搜索框 */
         .search-container { background: #fff; border-radius: 20px; padding: 8px 16px; display: flex; align-items: center; border: 1px solid #eee; margin-bottom: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .search-icon { color: #999; margin-right: 8px; font-size: 16px; }
         .search-container input { border: none; outline: none; flex: 1; font-size: 14px; background: transparent; }
@@ -51,7 +49,6 @@
         .detail-box h3 { font-size: 16px; margin-bottom: 12px; border-bottom: 1px solid #eee; padding-bottom: 8px; }
         .detail-desc { font-size: 13px; color: #555; line-height: 1.6; margin-top: 10px; background: #fafafa; padding: 10px; border-radius: 8px; }
         
-        /* 查看原件按钮 */
         .view-cert-btn { display: inline-block; background: #e3f2fd; color: #1565c0; padding: 2px 6px; border-radius: 4px; font-size: 11px; margin-left: 6px; cursor: pointer; }
 
         .pay-btn { background-color: #d32f2f; color: #fff; border: none; width: 100%; padding: 14px; border-radius: 10px; font-size: 16px; font-weight: 600; cursor: pointer; }
@@ -75,6 +72,7 @@
         .order-card { background: #fff; border-radius: 12px; padding: 12px; margin-bottom: 10px; border: 1px solid #eee; cursor: pointer; }
         .order-title { font-size: 15px; font-weight: bold; display: flex; justify-content: space-between; }
         .order-info { font-size: 12px; color: #888; margin-top: 6px; }
+        .tx-link { color: #1565c0; text-decoration: underline; font-size: 11px; word-break: break-all; }
         .order-status-tag { display: inline-block; background: #fff3e0; color: #e65100; padding: 4px 10px; border-radius: 20px; font-size: 12px; margin-top: 10px; font-weight: bold; border: 1px solid #ffe0b2;}
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: flex-end; }
@@ -96,7 +94,6 @@
         .timeline-time { font-size: 12px; color: #aaa; }
         .close-btn { width: 100%; padding: 14px; background: #fff; border: 1px solid #eee; border-radius: 10px; font-size: 16px; font-weight: bold; margin-top: 20px; cursor: pointer; }
 
-        /* 全屏图片预览器 */
         #cert-viewer { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; flex-direction: column; }
         #cert-viewer img { max-width: 95%; max-height: 85%; object-fit: contain; border-radius: 4px; }
         .cert-close { position: absolute; top: 20px; right: 20px; color: #fff; font-size: 30px; cursor: pointer; font-weight: bold; }
@@ -125,7 +122,6 @@
     </header>
 
     <div id="page-home" class="page active">
-        <!-- 信任背书横幅 -->
         <div class="trust-banner" onclick="viewCert('https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png')">
             <div class="trust-banner-left">
                 <div class="trust-icon">🛡️</div>
@@ -137,7 +133,6 @@
             <button class="trust-btn" data-i18n="view_cert">查看</button>
         </div>
 
-        <!-- 搜索框 -->
         <div class="search-container">
             <span class="search-icon">🔍</span>
             <input type="text" id="search-input" oninput="handleSearch()" placeholder="搜索商品..." data-i18n-placeholder="search_placeholder">
@@ -209,13 +204,16 @@
                 <div class="logistics-row"><span data-i18n="carrier">承运公司</span><span id="modal-carrier">DHL Express / 顺丰国际</span></div>
                 <div class="logistics-row"><span data-i18n="tracking_no">运单号</span><span id="modal-track-no">SF1234567890</span></div>
                 <div class="logistics-row"><span data-i18n="estimated_delivery">预计送达</span><span id="modal-est-time" style="color:#d32f2f; font-weight:bold;">3-5 Days</span></div>
+                <div class="logistics-row" style="margin-top:10px; border-top:1px dashed #eee; padding-top:10px; display:block;">
+                    <span data-i18n="blockchain_tx" style="display:block; margin-bottom:4px;">链上存证交易 (TxID):</span>
+                    <a id="modal-txid-link" href="#" target="_blank" class="tx-link">Loading...</a>
+                </div>
             </div>
             <div class="timeline" id="timeline-container"></div>
             <button class="close-btn" onclick="closeLogistics()" data-i18n="close">关闭</button>
         </div>
     </div>
 
-    <!-- 全屏资质证书预览器 -->
     <div id="cert-viewer">
         <span class="cert-close" onclick="closeCert()">×</span>
         <img id="cert-image" src="" alt="Certificate">
@@ -245,7 +243,6 @@
         let allProducts = [];
         let currentLang = 'zh';
         
-        // 搜索与分类状态
         let currentSearchQuery = '';
         let currentCategory = 'all';
 
@@ -256,11 +253,11 @@
         const HALAL_CERT_URL = 'https://sqxeyzzoxwytecqktaqs.supabase.co/storage/v1/object/public/certs/halalrenzheng.png';
 
         const dict = {
-            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品" },
-            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found" },
-            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات" },
-            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos" },
-            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé" }
+            zh: { connect: "连接钱包", all: "全部", spices: "香料", halal: "清真食品", back: "← 返回", not_connected: "未连接钱包", home: "首页", cart: "购物车", profile: "我的", orders_title: "我的订单 (消费记录)", address_title: "收货信息管理", receiver_name: "收件人姓名", phone: "联系电话", detail_address: "详细地址", total: "总计", checkout: "去结算", add_cart: "加入购物车", no_orders: "暂无订单记录", empty_cart: "购物车空空如也", pay: "支付", origin: "产地", effect_med: "中药功效", effect_season: "调味/食用特点", craft: "制作工艺", history: "历史由来", click_order_hint: "👉 点击订单卡片可查看物流动态", logistics_title: "物流跟踪", carrier: "承运公司", tracking_no: "运单号", estimated_delivery: "预计送达", blockchain_tx: "链上存证交易", close: "关闭", status_shipped: "运输中", status_pending: "待发货", trust_banner_title: "平台资质保障", trust_banner_desc: "SGS 验厂 / Halal 认证原件", view_cert: "查看", view_original: "(查看原件)", search_placeholder: "搜索商品名称...", no_search_result: "没有找到相关商品" },
+            en: { connect: "Connect Wallet", all: "All", spices: "Spices", halal: "Halal Food", back: "← Back", not_connected: "Not Connected", home: "Home", cart: "Cart", profile: "Profile", orders_title: "My Orders", address_title: "Shipping Info", receiver_name: "Receiver Name", phone: "Phone Number", detail_address: "Detailed Address", total: "Total", checkout: "Checkout", add_cart: "Add to Cart", no_orders: "No orders", empty_cart: "Cart is empty", pay: "Pay", origin: "Origin", effect_med: "TCM Effect", effect_season: "Culinary Feature", craft: "Craftsmanship", history: "History", click_order_hint: "👉 Click order card to track logistics", logistics_title: "Logistics Tracking", carrier: "Carrier", tracking_no: "Tracking No.", estimated_delivery: "Est. Delivery", blockchain_tx: "On-chain TxID", close: "Close", status_shipped: "In Transit", status_pending: "Pending", trust_banner_title: "Platform Compliance", trust_banner_desc: "SGS / Halal Original Certificates", view_cert: "View", view_original: "(View Original)", search_placeholder: "Search products...", no_search_result: "No products found" },
+            ar: { connect: "ربط المحفظة", all: "الكل", spices: "التوابل", halal: "طعام حلال", back: "← رجوع", not_connected: "غير متصل", home: "الرئيسية", cart: "عربة التسوق", profile: "حسابي", orders_title: "طلباتي", address_title: "معلومات الشحن", receiver_name: "اسم المستلم", phone: "رقم الهاتف", detail_address: "العنوان التفصيلي", total: "الإجمالي", checkout: "الدفع", add_cart: "أضف إلى السلة", no_orders: "لا توجد طلبات", empty_cart: "السلة فارغة", pay: "دفع", origin: "المنشأ", effect_med: "تأثير طبي", effect_season: "ميزة الطهي", craft: "الحرفية", history: "التاريخ", click_order_hint: "👉 انقر على الطلب لتتبع الشحن", logistics_title: "تتبع الشحن", carrier: "شركة النقل", tracking_no: "رقم التتبع", estimated_delivery: "التوصيل المتوقع", blockchain_tx: "معرف المعاملة على السلسلة", close: "إغلاق", status_shipped: "قيد النقل", status_pending: "قيد الانتظار", trust_banner_title: "امتثال المنصة", trust_banner_desc: "شهادات SGS / حلال الأصلية", view_cert: "عرض", view_original: "(عرض الأصل)", search_placeholder: "البحث عن المنتجات...", no_search_result: "لم يتم العثور على منتجات" },
+            es: { connect: "Conectar Billetera", all: "Todo", spices: "Especias", halal: "Comida Halal", back: "← Volver", not_connected: "No Conectado", home: "Inicio", cart: "Carrito", profile: "Perfil", orders_title: "Mis Pedidos", address_title: "Información de Envío", receiver_name: "Nombre", phone: "Teléfono", detail_address: "Dirección", total: "Total", checkout: "Pagar", add_cart: "Añadir al Carrito", no_orders: "Sin pedidos", empty_cart: "Carrito vacío", pay: "Pagar", origin: "Origen", effect_med: "Efecto TCM", effect_season: "Característica Culinaria", craft: "Artesanía", history: "Historia", click_order_hint: "👉 Toca para rastrear", logistics_title: "Rastreo", carrier: "Transportista", tracking_no: "Número de Seguimiento", estimated_delivery: "Entrega Est.", blockchain_tx: "TxID en Cadena", close: "Cerrar", status_shipped: "En Tránsito", status_pending: "Pendiente", trust_banner_title: "Cumplimiento", trust_banner_desc: "Certificados SGS / Halal", view_cert: "Ver", view_original: "(Ver Original)", search_placeholder: "Buscar productos...", no_search_result: "No se encontraron productos" },
+            fr: { connect: "Connecter Portefeuille", all: "Tout", spices: "Épices", halal: "Nourriture Halal", back: "← Retour", not_connected: "Non Connecté", home: "Accueil", cart: "Panier", profile: "Profil", orders_title: "Mes Commandes", address_title: "Informations de Livraison", receiver_name: "Nom", phone: "Téléphone", detail_address: "Adresse", total: "Total", checkout: "Payer", add_cart: "Ajouter au Panier", no_orders: "Aucune commande", empty_cart: "Panier vide", pay: "Payer", origin: "Origine", effect_med: "Effet MTC", effect_season: "Caractéristique Culinaire", craft: "Artisanat", history: "Histoire", click_order_hint: "👉 Cliquez pour suivre", logistics_title: "Suivi", carrier: "Transporteur", tracking_no: "Numéro de Suivi", estimated_delivery: "Livraison Est.", blockchain_tx: "TxID sur la Chaîne", close: "Fermer", status_shipped: "En Transit", status_pending: "En Attente", trust_banner_title: "Conformité", trust_banner_desc: "Certificats SGS / Halal", view_cert: "Voir", view_original: "(Voir l'Original)", search_placeholder: "Rechercher des produits...", no_search_result: "Aucun produit trouvé" }
         };
 
         function detectLanguage() {
@@ -305,19 +302,15 @@
             if (!error) { allProducts = data; renderFilteredProducts(); renderCart(); }
         }
 
-        // 统一处理搜索与分类的核心函数
         function renderFilteredProducts() {
             const listEl = document.getElementById('product-list');
             listEl.innerHTML = '';
             
-            // 1. 先按分类过滤
             let filtered = currentCategory === 'all' ? allProducts : allProducts.filter(p => p.category === currentCategory);
             
-            // 2. 再按搜索词过滤（多语言模糊匹配）
             if (currentSearchQuery.trim() !== '') {
                 const query = currentSearchQuery.trim().toLowerCase();
                 filtered = filtered.filter(p => {
-                    // 检查所有语言的名称是否包含搜索词
                     const names = [p.name, p.name_en, p.name_ar, p.name_es, p.name_fr].filter(Boolean);
                     return names.some(n => n.toLowerCase().includes(query));
                 });
@@ -341,7 +334,6 @@
             });
         }
 
-        // 监听搜索框输入
         function handleSearch() {
             currentSearchQuery = document.getElementById('search-input').value;
             renderFilteredProducts();
@@ -354,7 +346,6 @@
             renderFilteredProducts();
         }
 
-        // 打开全屏图片
         function viewCert(imgUrl) {
             document.getElementById('cert-image').src = imgUrl;
             document.getElementById('cert-viewer').style.display = 'flex';
@@ -388,7 +379,6 @@
                 `;
             }
 
-            // 动态渲染“查看原件”按钮
             let certHtml = '';
             if (p.sgs || p.halal) {
                 certHtml = `<div class="detail-box">
@@ -398,12 +388,17 @@
                 certHtml += `</div>`;
             }
 
+            // 这里去掉了假哈希，加上了 RWA 资产上链说明
             detailEl.innerHTML = `
                 <img src="${p.image_url}" class="detail-img" onerror="this.src='https://images.unsplash.com/photo-1596797038530-2c107229654b?w=400'">
                 <h2 style="font-size: 22px; margin-bottom: 8px;">${getProductName(p)}</h2>
                 <div style="color: #d32f2f; font-size: 24px; font-weight: bold; margin-bottom: 16px;">${p.price} Pi / ${unit}</div>
                 ${detailHtml}
                 ${certHtml}
+                <div class="detail-box">
+                    <h3>RWA 链上确权</h3>
+                    <p style="font-size:12px; color:#666; line-height:1.6;">本批次仓单资产已托管。当您通过 Pi 支付购买后，系统将自动在 Pi 区块链上生成唯一确权凭证 (TxID)，可在订单中随时溯源查验。</p>
+                </div>
                 <button class="pay-btn" onclick="addToCart(${p.id})" data-i18n="add_cart">加入购物车</button>
             `;
             switchPage('detail');
@@ -519,6 +514,7 @@
                     onReadyForServerCompletion: async function(paymentId, txid) {
                         const res = await fetch('/api/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ paymentId, txid }) });
                         if (res.ok) {
+                            // 记录真实的 TxID
                             await supabaseClient.from('orders').insert([{ 
                                 username: currentUser, 
                                 item_name: itemNames.join(', '), 
@@ -563,6 +559,7 @@
                         </div>
                         <div class="order-info">收件人: ${order.receiver_name || '未填'} (${order.country_code || ''} ${order.phone || ''})</div>
                         <div class="order-info">地址: ${order.address || '未填'}</div>
+                        <div class="order-info" style="color:#1565c0; margin-top:4px;">TxID: ${order.txid.substring(0, 10)}...</div>
                         <div class="order-status-tag">${order.status || '待发货'} &gt;</div>
                     </div>
                 `;
@@ -586,6 +583,12 @@
             document.getElementById('modal-status-title').innerText = dictLang.status_shipped;
             document.getElementById('modal-est-time').innerText = estDeliveryStr;
             document.getElementById('modal-track-no').innerText = "SF" + Math.floor(Math.random() * 10000000000);
+            
+            // 真实的 TxID 渲染
+            const txidLink = document.getElementById('modal-txid-link');
+            txidLink.innerText = order.txid;
+            // 因为当前是测试网，所以跳转到测试网的区块浏览器
+            txidLink.href = `https://blockexplorer.minepi.com/testnet/tx/${order.txid}`;
 
             const logData = [
                 { time: new Date(orderTime.getTime() + 1000 * 60 * 60 * 24 * 2), title: dictLang.log_transit, active: true },
